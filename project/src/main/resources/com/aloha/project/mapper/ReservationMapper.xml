@@ -39,27 +39,9 @@
             AND r.status IN ('예약중', '결제완료')
             AND #{today} BETWEEN r.res_date AND r.checkout_date
             
-            h.room_type AS roomType,
-            h.img AS roomImg,
-            h.cctv_url AS cctvUrl,
-            
-            ps.pet_no AS 'petStatus.petNo',
-            ps.status AS 'petStatus.status',
-            ps.next_schedule AS 'petStatus.nextSchedule',
-            ps.updated_at AS 'petStatus.updatedAt'
-            
-        FROM reservations r
-        JOIN pets p ON r.pet_no = p.no
-        JOIN hotelrooms h ON r.room_no = h.room_no
-        LEFT JOIN pet_status ps ON r.pet_no = ps.pet_no
-        
-        WHERE r.user_no = #{userNo}
-          AND r.status IN ('예약중', '결제완료')
-          AND #{today} BETWEEN r.res_date AND r.checkout_date
-          
-        ORDER BY r.res_no DESC
-        LIMIT 1
-    </select>
+            ORDER BY r.res_no DESC
+            LIMIT 1
+        </select>
 
         <!-- ✅ 예약 추가 (status 필드 추가) -->
         <insert id="insertReservation" parameterType="com.aloha.project.dto.ReservationDto" useGeneratedKeys="true" keyProperty="resNo">
@@ -159,24 +141,6 @@
 
     </select>
 
-    <!-- ⭐ 객실별 예약 스케줄 확인 + cctvUrl 추가 -->
-    <select id="getRoomSchedule" parameterType="long" resultType="com.aloha.project.dto.ReservationDto">
-        SELECT 
-            r.res_no AS resNo,
-            r.res_date AS checkin,
-            r.checkout_date AS checkout,
-            r.status,
-            p.name AS petName,
-            h.img AS roomImg,
-            h.cctv_url AS cctvUrl
-        FROM reservations r
-        JOIN pets p ON r.pet_no = p.no
-        JOIN hotelrooms h ON r.room_no = h.room_no
-        WHERE r.room_no = #{roomNo}
-            AND r.status IN ('예약중', '결제완료')
-            AND r.checkout_date &gt;= CURDATE()
-        ORDER BY r.res_date
-    </select>
         <!-- ✅ 회원별 예약 조회 (status 추가) + cctvUrl 추가 -->
         <select id="findByUserNo" resultType="com.aloha.project.dto.ReservationDto">
             SELECT 
