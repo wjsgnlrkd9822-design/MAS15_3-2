@@ -1,6 +1,8 @@
 package com.aloha.project.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,8 @@ import com.aloha.project.dto.Notice;
 import com.aloha.project.service.NoticeService;
 
 import lombok.RequiredArgsConstructor;
-
+import java.util.HashMap;           /* 추가 */
+import java.util.Map;               /* 추가 */
  
 
 
@@ -101,6 +104,39 @@ public class NoticeController {
         }
     }
 
+
+    // 공지사항 목록 조회 (React용 JSON API)    /* 추가 */
+@GetMapping("/api/notices")
+@ResponseBody
+public Map<String, Object> getNoticesApi() {
+    Map<String, Object> result = new HashMap<>();
+    try {
+        List<Notice> noticeList = noticeService.getRecentNotices(5);
+        result.put("success", true);
+        result.put("noticeList", noticeList);
+    } catch (Exception e) {
+        e.printStackTrace();
+        result.put("success", false);
+        result.put("noticeList", List.of());
+    }
+    return result;
+}
+
+    // 공지사항 상세 조회 (React용 JSON API)    /* 추가 */
+    @GetMapping("/api/notices/{no}")
+    @ResponseBody
+    public Map<String, Object> getNoticeDetailApi(@PathVariable("no") Long no) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            Notice notice = noticeService.select(no);
+            result.put("success", true);
+            result.put("notice", notice);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("success", false);
+        }
+        return result;
+    }
     
 }
 

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.aloha.project.dto.HotelRoom;
+import com.aloha.project.dto.HotelService;
 import com.aloha.project.mapper.HotelRoomMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -34,4 +35,9 @@ public class HotelRoomService {
     public int deleteRoom(Long roomNo) {
         return mapper.deleteHotelRoom(roomNo);
     }
+
+    public List<HotelService> getAllServices() {
+        return mapper.selectAllServices();
+    }
+    
 }

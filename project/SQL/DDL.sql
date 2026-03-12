@@ -254,3 +254,7 @@ SELECT
     END as is_active
 FROM reservations r
 WHERE r.status = '예약중';
+
+DELETE FROM hotelservices WHERE service_no = 5;
+
+SELECT * FROM hotelservices;
