@@ -229,7 +229,7 @@
                 <option value="" disabled selected>반려견 선택</option>
                 <option th:each="pet : ${pets}" th:value="${pet.no}" th:text="${pet.name}"></option>
             </select>
-            <button type="submit" id="reserveBtn" class="summary-btn">예약하기</button>
+            <button type="button" id="reserveBtn" class="summary-btn">예약하기</button>
         </form>
     </div>
 
@@ -518,34 +518,37 @@ function validateDates(checkin, checkout) {
     return true;
 }
 
-// 폼 제출
-document.getElementById("reservationForm").addEventListener("submit", function(e) {
+// ⭐ 예약하기 버튼 클릭 이벤트
+document.getElementById("reserveBtn").addEventListener("click", function() {
     const checkin = window.checkinInput.selectedDates[0];
     const checkout = window.checkoutInput.selectedDates[0];
     const petSelect = document.getElementById("petSelect");
+    const form = document.getElementById("reservationForm");
 
+    // 유효성 검사
     if (!checkin || !checkout) {
-        e.preventDefault();
         alert("체크인/체크아웃 날짜를 선택해주세요.");
         return;
     }
     if (checkout <= checkin) {
-        e.preventDefault();
         alert("체크아웃 날짜는 체크인 날짜보다 이후여야 합니다.");
         return;
     }
     
     // 날짜 겹침 검증
     if (!validateDates(checkin, checkout)) {
-        e.preventDefault();
         alert("선택하신 날짜에 이미 예약이 있습니다. 다른 날짜를 선택해주세요.");
         return;
     }
     
     if (!petSelect.value) {
-        e.preventDefault();
         alert("반려견을 선택해주세요.");
         return;
+    }
+
+    // ⭐ 예약 확인 다이얼로그
+    if (!confirm("정말 예약하시겠습니까?")) {
+        return; // 사용자가 '취소' 클릭 시 중단
     }
 
     // hidden 필드 세팅
@@ -567,6 +570,12 @@ document.getElementById("reservationForm").addEventListener("submit", function(e
                                 .filter(cb => cb.checked)
                                 .map(cb => cb.value);
     document.getElementById("form-serviceIds").value = selectedServices.join(',');
+    
+    // ⭐ 예약 완료 메시지를 표시한 후 폼 제출
+    alert('예약이 완료되었습니다!');
+    
+    // 폼 제출
+    form.submit();
 });
 /*]]>*/
 </script>

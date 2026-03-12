@@ -1,4 +1,4 @@
--- Active: 1767840691076@@127.0.0.1@3306@aloha
+-- Active: 1767920835424@@127.0.0.1@3306@aloha
 SET FOREIGN_KEY_CHECKS = 0;
 
 drop TABLE IF EXISTS `users`;
@@ -18,6 +18,7 @@ CREATE TABLE `users`(
     `enabled` INT DEFAULT 1 COMMENT '활성화여부'
 );
 
+DROP TABLE if EXISTS `users_social`;
 CREATE TABLE `users_social` (
     `no` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '소셜 PK',
     `user_no` BIGINT NOT NULL COMMENT '회원번호(FK)',
@@ -189,13 +190,13 @@ UPDATE hotelrooms
 SET cctv_url = 'https://www.youtube.com/watch?v=8dYNg7bmS5c'
 WHERE room_no = 1;
 -- ⭐ hotelrooms 테이블에 cctv_url 컬럼 추가
-ALTER TABLE `hotelrooms`
-ADD COLUMN `cctv_url` VARCHAR(500) DEFAULT NULL COMMENT '유튜브 라이브 CCTV URL';
+-- ALTER TABLE `hotelrooms`
+-- ADD COLUMN `cctv_url` VARCHAR(500) DEFAULT NULL COMMENT '유튜브 라이브 CCTV URL';
 
 -- ⭐ 샘플 CCTV URL 데이터 (실제 유튜브 라이브 URL로 교체 필요)
 -- 예시: https://www.youtube.com/watch?v=VIDEO_ID 또는 https://www.youtube.com/live/VIDEO_ID
 
-INSERT INTO hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=8dYNg7bmS5c' WHERE room_no = 1;  -- 대형견실 101
+UPDATE hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=8dYNg7bmS5c' WHERE room_no = 1;  -- 대형견실 101
 UPDATE hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk' WHERE room_no = 2;  -- 대형견실 102
 UPDATE hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk' WHERE room_no = 3;  -- 대형견실 103
 UPDATE hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk' WHERE room_no = 4;  -- 대형견실 디럭스 104
@@ -212,6 +213,8 @@ UPDATE hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk' W
 UPDATE hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk' WHERE room_no = 13; -- 소형견실 디럭스 304
 UPDATE hotelrooms SET cctv_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk' WHERE room_no = 14; -- 소형견실 디럭스 305
 
+
+drop TABLE IF EXISTS `pet_status`;
 
 CREATE TABLE pet_status (
     pet_no INT PRIMARY KEY,
@@ -251,3 +254,7 @@ SELECT
     END as is_active
 FROM reservations r
 WHERE r.status = '예약중';
+
+DELETE FROM hotelservices WHERE service_no = 5;
+
+SELECT * FROM hotelservices;

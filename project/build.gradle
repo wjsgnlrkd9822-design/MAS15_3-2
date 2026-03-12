@@ -46,7 +46,7 @@ dependencies {
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'		// oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	
+
 }
 
 tasks.named('test') {

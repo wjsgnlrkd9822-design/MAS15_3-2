@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,10 +38,13 @@ public class KakaoPayServiceImpl implements KakaoPayService {
     private String cancelUrl;
 
     // 결제 성공/실패/취소 URL
-    /* 주소 바꿔야 합니다. */
-    private static final String APPROVAL_URL = "http://192.168.30.36:8080:8080/kakaopay/success";
-    private static final String FAIL_URL     = "http://192.168.30.36:8080:8080/kakaopay/fail";
-    private static final String CANCEL_URL   = "http://192.168.30.36:8080:8080/kakaopay/cancel";
+//     private static final String APPROVAL_URL = "http://localhost:8080/kakaopay/success";
+//     private static final String FAIL_URL     = "http://localhost:8080/kakaopay/fail";
+//     private static final String CANCEL_URL   = "http://localhost:8080/kakaopay/cancel";
+    private static final String APPROVAL_URL = "http://192.168.30.36:8080/kakaopay/success";
+    private static final String FAIL_URL     = "http://192.168.30.36:8080/kakaopay/fail";
+    private static final String CANCEL_URL   = "http://192.168.30.36:8080/kakaopay/cancel";
+
 
     // 결제 준비 (Ready)
     @Override
