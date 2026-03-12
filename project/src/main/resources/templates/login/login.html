@@ -28,8 +28,8 @@
                 <!-- 로그인 영역 -->
                 <main class="form-signin login-box w-100 m-auto">
                     <form action="/login" method="post">
-                        <!-- CSRF TOKEN -->
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <!-- CSRF TOKEN th:name="${_csrf.parameterName}" th:value="${_csrf.token}" 테스트용 삭제-->
+                        <input type="hidden" >
                         
                         <div class="form-floating mb-2">
                             <input type="text" class="form-control" id="username" name="username" value="" placeholder="아이디" 

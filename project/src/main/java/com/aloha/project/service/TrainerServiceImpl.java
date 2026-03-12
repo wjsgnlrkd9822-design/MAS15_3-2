@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.aloha.project.dto.Trainer;
 import com.aloha.project.mapper.TrainerMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +15,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TrainerServiceImpl implements TrainerService{
         private final TrainerMapper trainerMapper;
+
+
+    @Override
+    public PageInfo<Trainer> listPage(int page, int size) throws Exception {
+        PageHelper.startPage(page, size);
+        List<Trainer> list = trainerMapper.list();
+        return new PageInfo<>(list);
+    }
+
 
     @Override
     public List<Trainer> list() throws Exception {

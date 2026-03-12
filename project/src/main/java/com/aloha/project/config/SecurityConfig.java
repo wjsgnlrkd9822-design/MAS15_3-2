@@ -1,5 +1,7 @@
 package com.aloha.project.config;
 
+import java.util.Arrays;
+
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
@@ -15,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.aloha.project.handler.CustomAccessDeniedHandler;
 import com.aloha.project.handler.LoginFailureHandler;
@@ -45,50 +50,47 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        log.info("스프링 시큐리티 설정 (form + 카카오 OAuth 통합)");
+        log.info("스프링 시큐리티 설정 - 테스트 모드");
 
-    // 인가 설정
-    http.authorizeHttpRequests(auth -> auth
-                              .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")  
-                              .requestMatchers("/pet/reservation/**").authenticated() // 한줄 추가했어요
-                              .requestMatchers("/**").permitAll()   // 전체 허용  
-                              );
-    // 폼 로그인 설정
-    http.formLogin(login -> login
-      .loginPage("/login")    
-      .loginProcessingUrl("/login")
-      .successHandler(loginSuccessHandler)
-      .failureHandler(loginFailureHandler)
-    );
+        // ✅ CORS 설정
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        // form 로그인 설정 (일반 로그인)
+        // ✅ CSRF 비활성화 (React API 호출용)
+        http.csrf(csrf -> csrf.disable());
+
+        // ✅ 인가 설정 - 테스트용 전체 허용
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers("/**").permitAll()
+        );
+
+        // 폼 로그인 설정
         http.formLogin(login -> login
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .successHandler(loginSuccessHandler)
-                .failureHandler(loginFailureHandler)
+            .loginPage("/login")
+            .loginProcessingUrl("/login")
+            .successHandler(loginSuccessHandler)
+            .failureHandler(loginFailureHandler)
         );
 
         // 카카오 OAuth 로그인 설정
         http.oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
-                .userInfoEndpoint(userInfo -> userInfo
-                        .userService(customOAuth2UserService))
-                .successHandler(oAuth2LoginSuccessHandler) 
-                .failureUrl("/login?error=oauth2")
+            .loginPage("/login")
+            .userInfoEndpoint(userInfo -> userInfo
+                .userService(customOAuth2UserService))
+            .successHandler(oAuth2LoginSuccessHandler)
+            .failureUrl("/login?error=oauth2")
         );
 
         // 로그아웃 설정
         http.logout(logout -> logout
-                .logoutUrl("/logout")
-                .invalidateHttpSession(true)
-                .deleteCookies("remember-id")
-                .logoutSuccessHandler(logoutSuccessHandler)
+            .logoutUrl("/logout")
+            .invalidateHttpSession(true)
+            .deleteCookies("remember-id")
+            .logoutSuccessHandler(logoutSuccessHandler)
         );
 
         // 접근 거부 처리
         http.exceptionHandling(exception -> exception
-                .accessDeniedHandler(customAccessDeniedHandler)
+            .accessDeniedHandler(customAccessDeniedHandler)
         );
 
         // 사용자 정의 인증
@@ -96,12 +98,29 @@ public class SecurityConfig {
 
         // 자동 로그인
         http.rememberMe(me -> me
-                .key("aloha")
-                .tokenRepository(tokenRepository())
-                .tokenValiditySeconds(60 * 60 * 24 * 7)
+            .key("aloha")
+            .tokenRepository(tokenRepository())
+            .tokenValiditySeconds(60 * 60 * 24 * 7)
         );
 
         return http.build();
+    }
+
+    // ✅ CORS 설정
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173",
+            "http://localhost:3000"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

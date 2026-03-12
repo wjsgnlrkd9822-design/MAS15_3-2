@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.aloha.project.dto.HotelRoom;
 import com.aloha.project.mapper.RoomMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +16,14 @@ import lombok.RequiredArgsConstructor;
 public class RoomServiceImpl implements RoomService {
 
     private final RoomMapper roomMapper;
+
+
+    @Override
+    public PageInfo<HotelRoom> listPage(int page, int size) throws Exception {
+        PageHelper.startPage(page, size);
+        List<HotelRoom> list = roomMapper.list();
+        return new PageInfo<>(list);
+    }
 
     @Override
     public List<HotelRoom> list() throws Exception {

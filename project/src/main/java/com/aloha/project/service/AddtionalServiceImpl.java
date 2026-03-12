@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.aloha.project.dto.HotelService;
 import com.aloha.project.mapper.ServiceMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +16,14 @@ import lombok.RequiredArgsConstructor;
 public class AddtionalServiceImpl implements AddtionalService{
 
     private final ServiceMapper serviceMapper;
+
+
+    @Override
+    public PageInfo<HotelService> listPage(int page, int size) throws Exception {
+        PageHelper.startPage(page, size);
+        List<HotelService> list = serviceMapper.list();
+        return new PageInfo<>(list);
+    }
     @Override
     public List<HotelService> list() throws Exception {
         return serviceMapper.list();
