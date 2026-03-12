@@ -1,0 +1,510 @@
+/* modern-reservation.css */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;600;700;800&display=swap');
+
+* {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* --- Layout Wrappers --- */
+/* 사이드바 레이아웃 사용으로 인해 container 불필요 */
+
+/* Page Title Override */
+.reservation-text {
+  font-size: 36px;
+  font-weight: 100;
+  text-align: center;
+  margin: 30px 0 30px 0;
+  color: #222;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* ===================================
+   사이드바 레이아웃 (왼쪽 필터 + 오른쪽 리스트)
+   =================================== */
+.search-and-results-container {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 40px;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 10px 40px;
+  overflow: visible;
+}
+
+/* 왼쪽 검색 필터 사이드바 */
+.integrated-search-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 24px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  overflow-y: auto;
+}
+
+.search-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #222;
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* 검색 폼 레이아웃 - 세로 배치 */
+.search-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 날짜 선택 - 세로 배치 */
+.date-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 필터 선택 - 세로 배치 */
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 필터 그룹 공통 */
+.filter-group-integrated {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group-integrated .group-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-left: 2px;
+}
+
+/* 날짜 입력 */
+.date-input-integrated {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.date-input-integrated:focus {
+  outline: none;
+  border-color: #333;
+  box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1);
+}
+
+/* 칩 컨테이너 */
+.chip-container-integrated {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  background: #f0f2f5;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.filter-chip-integrated {
+  min-width: 0;
+}
+
+.filter-chip-integrated input {
+  display: none;
+}
+
+.filter-chip-integrated span {
+  display: block;
+  padding: 10px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.filter-chip-integrated input:checked + span {
+  background-color: #333;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.filter-chip-integrated:hover span {
+  color: #111;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.filter-chip-integrated input:checked:hover + span {
+  background-color: #222;
+}
+
+/* 버튼 영역 */
+.search-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.search-btn-integrated {
+  width: 100%;
+  padding: 12px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-btn-integrated:hover {
+  background: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.reset-btn-integrated {
+  width: 100%;
+  padding: 12px;
+  background: white;
+  color: #333;
+  border: 2px solid #333;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reset-btn-integrated:hover {
+  background: #f5f5f5;
+}
+
+/* 결과 카운트 */
+.search-result-info {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid #f0f0f0;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
+.search-result-info strong {
+  display: block;
+  color: #333;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+/* 로딩 오버레이 */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-overlay.active {
+  display: flex;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #333;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 빈 결과 메시지 */
+.empty-result {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.empty-result-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.empty-result-title {
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.empty-result-desc {
+  font-size: 14px;
+  color: #999;
+}
+
+/* 모바일 반응형 - 통합 검색 */
+@media (max-width: 968px) {
+  .search-and-results-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .integrated-search-section {
+    position: static;
+  }
+
+  .chip-container-integrated {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .search-buttons {
+    flex-direction: row;
+  }
+
+  .search-btn-integrated,
+  .reset-btn-integrated {
+    width: auto;
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .chip-container-integrated {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- Card Grid --- */
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+  padding-bottom: 80px;
+}
+
+.reservation-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+/* --- Premium Card Design --- */
+.reservation-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.3s cubic-bezier(0.25, 1.5, 0.5, 1),
+    box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.reservation-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Disabled State */
+.reservation-card.disabled {
+  opacity: 0.8;
+}
+
+/* Image Wrapper */
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 66%;
+  overflow: hidden;
+}
+
+.room-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.reservation-card:hover .room-image {
+  transform: scale(1.05);
+}
+
+/* Status Badge */
+.status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge.available {
+  background-color: rgba(46, 204, 113, 0.9);
+}
+
+.status-badge.booked {
+  background-color: rgba(231, 76, 60, 0.9);
+}
+
+/* Content Area */
+.card-content {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.room-type {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.room-size-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  background: #f0f2f5;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.room-desc {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Footer Row */
+.card-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 20px;
+}
+
+/* ✅ card-footer-row 안에서만 적용 - reservation-detail.css 충돌 방지 */
+.card-footer-row .price-box {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.card-footer-row .price-label {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 2px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.card-footer-row .room-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111;
+  font-family: 'Noto Sans KR', sans-serif;
+  white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.card-footer-row .currency {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* Button */
+.reserve-btn {
+  background-color: white;
+  color: #222;
+  padding: 10px 20px;
+  border: 2px solid #222;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.reserve-btn:hover {
+  background-color: #222;
+  color: white;
+}
+
+.reservation-card:hover .reserve-btn {
+  background-color: #222;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.reservation-card.disabled .reserve-btn {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Mobile Responsive - 카드 그리드 */
+@media (max-width: 768px) {
+  .room-grid {
+    grid-template-columns: 1fr;
+  }
+}

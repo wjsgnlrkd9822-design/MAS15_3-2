@@ -12,8 +12,7 @@
 
 </head>
 <body>
-<th:block th:replace="~{fragments/header::header}"></th:block>
-    
+                
     <div class="success-header">
         <div class="success-header-inner">
             <h2>결제가 완료되었습니다!</h2>
@@ -22,8 +21,22 @@
             <p>결제 금액 : <span th:text="${approve.amount.total}"></span> 원</p>
             <p>결제 수단 : <span th:text="${approve.payment_method_type}"></span></p>
             <p>결제 시각 : <span th:text="${approve.approved_at}"></span></p>
-            <a href="/mypage" class="btn btn-outline-secondary">돌아가기</a>
+            <!-- <a href="/mypage" class="btn btn-outline-secondary">돌아가기</a> -->
+             <button type="button" class="btn btn-outline-secondary" onclick="closeAndReload()">
+                돌아가기
+            </button>
         </div>
     </div>
+    <script>
+    function closeAndReload() {
+        if (window.opener) {
+            window.opener.location.reload();
+            window.close();
+        } else {
+            window.location.href = "/mypage";
+        }
+    }
+</script>
+
 </body>
 </html>

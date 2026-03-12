@@ -642,5 +642,24 @@ public class MainController {
         return result;
     }
 
-    
-}
+            /**
+             * 로그인 상태 확인 API (React 헤더용)       추가
+             */
+            @GetMapping("/api/auth/status")
+            @ResponseBody
+            public Map<String, Object> authStatus(@AuthenticationPrincipal UserDetails userDetails) {
+                Map<String, Object> result = new HashMap<>();
+                if (userDetails == null) {
+                    result.put("isLogin", false);
+                    result.put("isAdmin", false);
+                } else {
+                    boolean isAdmin = userDetails.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                    result.put("isLogin", true);
+                    result.put("isAdmin", isAdmin);
+                }
+                return result;
+            }
+
+        }
+            

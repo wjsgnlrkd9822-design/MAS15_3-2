@@ -1,7 +1,11 @@
--- Active: 1767840691076@@127.0.0.1@3306@aloha
+-- Active: 1767920835424@@127.0.0.1@3306@aloha
 /* 회원가입 후 생성한 아이디 집어넣어
     관리자 권한 부여
      */
+
+DROP TABLE IF EXISTS `user_auth`;
+
+
 
 INSERT INTO user_auth (id, username, auth)
 SELECT id, username, 'ROLE_ADMIN'
