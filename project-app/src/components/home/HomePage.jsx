@@ -2,13 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NoticeModal from './NoticeModal';
 import CctvModal from './CctvModal';
+import ChatBot from './ChatBot';
 import { getNotices } from '../../apis/noticeApi';
 
 
-// ──────────────────────────────────────────────
-//  메인 홈페이지
-//  Thymeleaf main.html → React 변환
-// ──────────────────────────────────────────────
 export default function HomePage() {
   const navigate = useNavigate();
   const [noticeList, setNoticeList] = useState([]);
@@ -113,6 +110,9 @@ export default function HomePage() {
 
       {/* ─── CCTV 플로팅 버튼 ─── */}
       <CctvModal />
+
+      {/* ─── 챗봇 ─── */}
+      <ChatBot />
     </>
   );
 }
