@@ -24,8 +24,12 @@ public class LogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
     
     log.info("로그아웃 성공...");
 
-    setDefaultTargetUrl("/");
-    super.onLogoutSuccess(request, response, authentication);
+    response.setStatus(HttpServletResponse.SC_OK);
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.getWriter().write(
+        "{\"message\": \"로그아웃 성공\", \"status\": 200}"
+    );
   }
 
   

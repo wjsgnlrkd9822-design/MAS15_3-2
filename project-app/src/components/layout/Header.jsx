@@ -1,23 +1,45 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode'
 
 export default function Header() {
   const [auth, setAuth] = useState({ isLogin: false, isAdmin: false });
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    fetch("/api/auth/status")
-      .then((res) => res.json())
-      .then((data) => setAuth(data))
-      .catch(() => setAuth({ isLogin: false, isAdmin: false }));
-  }, []);
+    const checkAuth = () => {
+        const token = localStorage.getItem('token')
+        if (token) {
+            try {
+                const decoded = jwtDecode(token.replace('Bearer ', ''))
+                setAuth({
+                    isLogin: true,
+                    isAdmin: decoded.rol.includes('ROLE_ADMIN')
+                })
+            } catch (e) {
+                localStorage.removeItem('token')
+                setAuth({ isLogin: false, isAdmin: false })
+            }
+        } else {
+            setAuth({ isLogin: false, isAdmin: false })
+        }
+    }
 
-  const handleLogout = async (e) => {
+    checkAuth()
+
+    window.addEventListener('storage', checkAuth)
+    return () => window.removeEventListener('storage', checkAuth)
+}, [location])
+
+
+  const handleLogout = (e) => {
     e.preventDefault();
-    await fetch("/logout", { method: "POST" });
+    localStorage.removeItem('token')
+    window.dispatchEvent(new Event('storage'))
     setAuth({ isLogin: false, isAdmin: false });
     navigate("/");
-  };
+};
 
   return (
     <header>

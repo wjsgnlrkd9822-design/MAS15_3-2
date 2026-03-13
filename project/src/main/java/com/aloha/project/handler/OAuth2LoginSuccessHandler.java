@@ -1,14 +1,16 @@
 package com.aloha.project.handler;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.aloha.project.config.JwtTokenProvider;
 import com.aloha.project.dto.CustomUser;
 import com.aloha.project.dto.User;
 import com.aloha.project.dto.UserSocial;
@@ -24,10 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserSocialService userSocialService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 생성자 주입
-    public OAuth2LoginSuccessHandler(UserSocialService userSocialService) {
+    public OAuth2LoginSuccessHandler(UserSocialService userSocialService, JwtTokenProvider jwtTokenProvider) {
         this.userSocialService = userSocialService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -44,7 +48,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         User user;
 
         try {
-            // social_user → users 조회
             UserSocial social = new UserSocial();
             social.setProvider(provider);
             social.setSocialId(socialId);
@@ -53,23 +56,26 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         } catch (Exception e) {
             log.error("소셜 사용자 조회 실패", e);
-            response.sendRedirect("/login?error");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         // CustomUser로 감싸기
         CustomUser customUser = new CustomUser(user);
 
-        // Authentication 재생성 및 SecurityContext에 등록
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(customUser, null, customUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        List<String> roles = customUser.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
-        // 세션에도 User 저장
-        request.getSession().setAttribute("user", user);
+        String token = jwtTokenProvider.createToken(user.getNo(), user.getUsername(), roles);
 
-        // 리다이렉트 설정
-        setDefaultTargetUrl("/");
-        super.onAuthenticationSuccess(request, response, authToken);
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(
+            "{\"token\": \"" + token + "\", \"username\": \"" + user.getUsername() + "\"}"
+        );
+
     }
 }
