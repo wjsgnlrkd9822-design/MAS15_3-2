@@ -23,7 +23,12 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         log.info("접근 권한이 없습니다.");
 
         // 에러 페이지로 이동
-        response.sendRedirect("/error/403");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(
+            "{\"error\": \"접근 권한이 없습니다.\", \"status\": 403}"
+        );
     }
     
 }
