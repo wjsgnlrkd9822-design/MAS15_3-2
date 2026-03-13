@@ -1,12 +1,5 @@
 package com.aloha.project.config;
 
-<<<<<<< HEAD
-import java.util.Arrays;
-
-import javax.sql.DataSource;
-
-=======
->>>>>>> 04a573c3ff92c760c249e19a572c346c3e3f731d
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
