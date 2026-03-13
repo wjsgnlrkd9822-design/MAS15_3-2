@@ -34,8 +34,6 @@ public interface UserService {
 
     public String findId(String name, String email) throws Exception;
 
-    public User selectById(Long userNo) throws Exception;
-
     public User selectByNo(Long no) throws Exception;
     
     // 기존 list() 아래에 추가
