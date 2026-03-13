@@ -53,6 +53,9 @@ public class SecurityConfig {
                               .requestMatchers("/pet/reservation/**").authenticated() // 한줄 추가했어요
                               .requestMatchers("/**").permitAll()   // 전체 허용  
                               );
+
+    // http.csrf(csrf -> csrf.disable());              /*  한줄 추가 */
+
     // 폼 로그인 설정
     http.formLogin(login -> login
       .loginPage("/login")    

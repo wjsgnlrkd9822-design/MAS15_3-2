@@ -5,6 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      // ✅ 챗봇만 Node.js 서버(3001)로 분기 - 반드시 /api 보다 위에 있어야 함
+      '/api/chat': 'http://localhost:3001',
+
+      // 기존 Spring Boot 프록시 (그대로 유지)
       '/api': 'http://localhost:8080',
       '/login': 'http://localhost:8080',
       '/logout': 'http://localhost:8080',
