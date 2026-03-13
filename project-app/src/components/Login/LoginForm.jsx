@@ -131,7 +131,7 @@ const LoginForm = () => {
               <img
                 src="/img/kakao_login_medium_wide.png"
                 alt="카카오 로그인"
-                className='w-full h-[42px] cursor-pointer'
+                className='w-full h-[42px] cursor-pointer flex justify-center items-center'
                 onError={(e) => { e.target.style.display = 'none' }}
               />
             </a>
