@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-  <!DOCTYPE mapper
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+      "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-    <mapper namespace="com.aloha.project.mapper.RoomMapper">
+      <mapper namespace="com.aloha.project.mapper.RoomMapper">
 
-    <select id='list' resultType='HotelRoom'>
-      SELECT *
-      FROM hotelrooms
-      ORDER BY room_no ASC
-    </select>
-
-      <select id="select" resultType="HotelRoom">
-          SELECT *
-          FROM hotelrooms
-          WHERE room_no = #{roomNo}
+      <select id='list' resultType='HotelRoom'>
+        SELECT *
+        FROM hotelrooms
+        ORDER BY room_no ASC
       </select>
 
-      <insert id="insert" >
-          INSERT INTO hotelrooms ( room_type, room_price, etc , img)
-          VALUES ( #{roomType}, #{roomPrice}, #{etc}  , #{img} )
-      </insert>
+        <select id="select" resultType="HotelRoom">
+            SELECT *
+            FROM hotelrooms
+            WHERE room_no = #{roomNo}
+        </select>
 
-      <update id="update">
-        UPDATE hotelrooms
-        <set>
-          <if test="roomType != null"> room_type = #{roomType}, </if>
-          <if test="roomPrice != null"> room_price = #{roomPrice}, </if>
-          <if test="etc != null"> etc = #{etc}, </if>
-          <if test="active != null"> active = #{active}, </if>
-          <if test="img != null"> img = #{img} </if>
-        </set>
+        <insert id="insert" >
+            INSERT INTO hotelrooms ( room_type, room_price, etc , img)
+            VALUES ( #{roomType}, #{roomPrice}, #{etc}  , #{img} )
+        </insert>
+
+        <update id="update">
+          UPDATE hotelrooms
+          <set>
+            <if test="roomType != null"> room_type = #{roomType}, </if>
+            <if test="roomPrice != null"> room_price = #{roomPrice}, </if>
+            <if test="etc != null"> etc = #{etc}, </if>
+            <if test="active != null"> active = #{active}, </if>
+            <if test="img != null"> img = #{img} </if>
+          </set>
+            WHERE room_no = #{roomNo}
+        AND NOT EXISTS (
+        SELECT 1 FROM reservations r
+        WHERE r.room_no = hotelrooms.room_no
+    )
+        </update>
+
+
+        <delete id="delete">
+          DELETE FROM hotelrooms
           WHERE room_no = #{roomNo}
-      AND NOT EXISTS (
-      SELECT 1 FROM reservations r
-      WHERE r.room_no = hotelrooms.room_no
-  )
-      </update>
+        </delete>
 
-
-      <delete id="delete">
-        DELETE FROM hotelrooms
-        WHERE room_no = #{roomNo}
-      </delete>
-
-    </mapper>
+      </mapper>

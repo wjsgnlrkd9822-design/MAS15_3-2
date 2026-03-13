@@ -31,8 +31,6 @@ public interface UserMapper {
 
     public String findId(@Param("name") String name, @Param("email") String email);
     
-    public User selectByUserNo(@Param("userNo") Long userNo) throws Exception;
-
     User selectByNo(@Param("userNo") Long userNo) throws Exception;
 
 

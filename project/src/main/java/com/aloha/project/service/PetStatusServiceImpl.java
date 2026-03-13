@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.aloha.project.dto.PetStatus;
 import com.aloha.project.mapper.PetStatusMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,13 @@ public class PetStatusServiceImpl implements PetStatusService {
     
     private final PetStatusMapper petStatusMapper;
     
+
+    @Override
+    public PageInfo<Map<String, Object>> getActiveReservationsPage(int page, int size) {
+        PageHelper.startPage(page, size);
+        List<Map<String, Object>> list = petStatusMapper.selectActiveReservationsWithPetStatus();
+        return new PageInfo<>(list);
+    } 
     @Override
     public List<Map<String, Object>> getActiveReservationsWithPetStatus() {
         try {

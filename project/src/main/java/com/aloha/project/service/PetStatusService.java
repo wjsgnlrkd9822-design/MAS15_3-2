@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.aloha.project.dto.PetStatus;
+import com.github.pagehelper.PageInfo;
 
 public interface PetStatusService {
     
@@ -40,4 +41,6 @@ public interface PetStatusService {
      * @return 성공 여부
      */
     boolean deletePetStatus(Long petNo);
+    PageInfo<Map<String, Object>> getActiveReservationsPage(int page, int size);
+    
 }

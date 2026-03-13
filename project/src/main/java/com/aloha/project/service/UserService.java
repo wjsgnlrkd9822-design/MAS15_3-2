@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.aloha.project.dto.User;
 import com.aloha.project.dto.UserAuth;
+import com.github.pagehelper.PageInfo;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -33,8 +34,8 @@ public interface UserService {
 
     public String findId(String name, String email) throws Exception;
 
-    public User selectById(Long userNo) throws Exception;
-
     public User selectByNo(Long no) throws Exception;
     
+    // 기존 list() 아래에 추가
+PageInfo<User> listPage(int page, int size) throws Exception;
 }

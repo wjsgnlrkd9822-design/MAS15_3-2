@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.aloha.project.dto.User;
 import com.aloha.project.dto.UserAuth;
 import com.aloha.project.mapper.UserMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -26,6 +28,13 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+
+        @Override
+        public PageInfo<User> listPage(int page, int size) throws Exception {
+            PageHelper.startPage(page, size);
+            List<User> list = userMapper.list();
+            return new PageInfo<>(list);
+        }
 
      @Override
     public boolean login(User user, HttpServletRequest request) throws Exception {
@@ -116,11 +125,6 @@ public class UserServiceImpl implements UserService {
     public String findId(String name, String email) throws Exception {
         String username = userMapper.findId(name, email);
         return username;
-    }
-
-    @Override
-    public User selectById(Long userNo) throws Exception {
-        return userMapper.selectByUserNo(userNo);
     }
 
     @Override
