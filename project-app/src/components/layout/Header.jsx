@@ -50,7 +50,6 @@ export default function Header() {
       <ul>
         <li><Link to="/pet/reservation">예약</Link></li>
         <li><Link to="/noticelist">공지사항</Link></li>
-        <li><Link to="/service">서비스</Link></li>
         <li><Link to="/pet/introduce">소개</Link></li>
       </ul>
 
