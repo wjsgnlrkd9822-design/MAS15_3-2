@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,12 +62,24 @@ public class CouponController {
         }
     }
 
-    // 월정 쿠폰 발급 (수동 테스트용)
+    // 월정 쿠폰 발급 (수동/어드민용)
     @PostMapping("/issue/monthly/{userNo}")
     public ResponseEntity<?> issueMonthly(@PathVariable("userNo") Long userNo) {
         try {
             boolean result = couponService.issueMonthlyOnce(userNo);
             return ResponseEntity.ok(result ? "SUCCESS" : "ALREADY_ISSUED");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("FAIL", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // 쿠폰 삭제 (어드민용)
+    @DeleteMapping("/delete/{couponNo}")
+    public ResponseEntity<?> deleteCoupon(@PathVariable("couponNo") Long couponNo) {
+        try {
+            couponService.deleteCoupon(couponNo);
+            return ResponseEntity.ok("SUCCESS");
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("FAIL", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -80,7 +93,7 @@ public class CouponController {
             UserGrade grade = couponService.getUserGrade(userNo);
             Map<String, Object> result = new HashMap<>();
             result.put("grade", grade != null ? grade.getGrade() : "BRONZE");
-            result.put("totalSales", grade != null ? grade.getTotalSales() : 0);
+            result.put("totalAmount", grade != null ? grade.getTotalSales() : 0); // totalAmount로 통일
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();

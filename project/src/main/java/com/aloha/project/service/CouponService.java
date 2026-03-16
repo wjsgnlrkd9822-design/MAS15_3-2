@@ -25,6 +25,9 @@ public interface CouponService {
     // 쿠폰 사용
     boolean useCoupon(Long couponNo, Long reservationNo);
 
+    // 쿠폰 삭제 (어드민)
+    void deleteCoupon(Long couponNo);
+
     // 회원 등급 조회
     UserGrade getUserGrade(Long userNo);
 
