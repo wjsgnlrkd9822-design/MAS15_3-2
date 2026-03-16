@@ -422,3 +422,10 @@ body{
     cursor: default !important;
     pointer-events: none;
 }
+
+/* 예약 불가 날짜 빨간색 + 클릭 불가 */
+.react-datepicker__day.unavailable {
+  color: #ff4444 !important;
+  pointer-events: none !important;
+  opacity: 0.6;
+}
