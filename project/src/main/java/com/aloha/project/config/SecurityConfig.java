@@ -48,65 +48,60 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // 인가 설정
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                 .requestMatchers("/pet/reservation/**").authenticated()
-                .requestMatchers("/**").permitAll()
-        );
+                .requestMatchers("/**").permitAll());
 
         // 카카오 OAuth 로그인
         http.oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
+                .loginPage("/oauth2/login")
                 .userInfoEndpoint(userInfo -> userInfo
                         .userService(customOAuth2UserService))
                 .successHandler(oAuth2LoginSuccessHandler)
-                .failureUrl("/login?error=oauth2")
-        );
+                .failureUrl("/login?error=oauth2"));
 
         // 로그아웃
         http.logout(logout -> logout
-            .logoutUrl("/logout")
-            .invalidateHttpSession(true)
-            .deleteCookies("remember-id")
-            .logoutSuccessHandler(logoutSuccessHandler)
-        );
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .deleteCookies("remember-id")
+                .logoutSuccessHandler(logoutSuccessHandler));
 
         // 접근 거부 처리
         http.exceptionHandling(exception -> exception
-            .accessDeniedHandler(customAccessDeniedHandler)
-        );
+                .accessDeniedHandler(customAccessDeniedHandler));
 
         // 사용자 정의 인증
         http.userDetailsService(userDetailServiceImpl);
 
         // ✅ JWT 필터 등록
-        http.addFilterAt(
-                new JwtAuthenticationFilter(authenticationManager(), jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(
-                new JwtRequestFilter(authenticationManager(), jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(
+        new JwtAuthenticationFilter(authenticationManager(), jwtTokenProvider),
+        UsernamePasswordAuthenticationFilter.class)
+    .addFilterBefore(
+        new JwtRequestFilter(authenticationManager(), jwtTokenProvider),
+        UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
-            }
-            
-            @Bean
-            public AuthenticationManager authenticationManager() throws Exception {
-                return authenticationConfiguration.getAuthenticationManager();
+    }
 
-            }
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
     // CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*");     // React 개발서버 허용
-        configuration.addAllowedMethod("*");            // GET, POST, PUT, DELETE 등 허용
-        configuration.addAllowedHeader("*");            // 모든 헤더 허용
-        configuration.setAllowCredentials(true);        // 쿠키/인증 허용
+        configuration.addAllowedOriginPattern("http://localhost:5173"); // React 개발서버 허용
+        configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 허용
+        configuration.addAllowedHeader("*"); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 쿠키/인증 허용
         configuration.addExposedHeader(SecurityConstants.TOKEN_HEADER); // Authorization 헤더 노출
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -114,11 +109,9 @@ public class SecurityConfig {
         return source;
     }
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
 }

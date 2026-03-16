@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import UserManage     from './pages/admin/UserManage'
 import Service        from './pages/admin/Service'
@@ -21,6 +21,9 @@ import IntroducePage from "./components/introduce/IntroducePage"
 import Mypage from "./pages/Mypage"
 import Join from "./pages/Join"
 import Login from "./pages/Login"
+import NoticeDetail from './pages/notice/Noticedetail'
+import NoticeEdit from './pages/notice/Noticeedit'
+import NoticeList from './pages/notice/Noticelist'
 
 // 일반 레이아웃 (Header + Footer 있음)
 function UserLayout({ children }) {
@@ -31,6 +34,15 @@ function UserLayout({ children }) {
       <Footer />
     </>
   )
+}
+
+// 어드민 Route 가드 - 토큰 없으면 로그인 페이지로
+function AdminRoute({ children }) {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    return <Navigate to="/login" replace />
+  }
+  return children
 }
 
 export default function App() {
@@ -46,20 +58,24 @@ export default function App() {
         <Route path="/login" element={<UserLayout><Login /></UserLayout>} />
         <Route path="/join" element={<UserLayout><Join /></UserLayout>} />
         <Route path="/mypage" element={<UserLayout><Mypage /></UserLayout>} />
+        <Route path="/noticelist"       element={<UserLayout><NoticeList /></UserLayout>} />
+<Route path="/noticedetail/:no" element={<UserLayout><NoticeDetail /></UserLayout>} />
+<Route path="/noticewrite"      element={<UserLayout><NoticeEdit /></UserLayout>} />
+<Route path="/noticeupdate/:no" element={<UserLayout><NoticeEdit /></UserLayout>} />
 
-        {/* 어드민 페이지 - Header/Footer 없음 */}
-        <Route path="/admin"                   element={<AdminDashboard />} />
-        <Route path="/admin/usermanage"        element={<UserManage />} />
-        <Route path="/admin/service"           element={<Service />} />
-        <Route path="/admin/roominsert"        element={<RoomInsert />} />
-        <Route path="/admin/roomup"            element={<RoomUpdate />} />
-        <Route path="/admin/serviceinsert"     element={<ServiceInsert />} />
-        <Route path="/admin/serviceupdate"     element={<ServiceUpdate />} />
-        <Route path="/admin/trainer"           element={<Trainer />} />
-        <Route path="/admin/trainerinsert"     element={<TrainerInsert />} />
-        <Route path="/admin/trainerupdate"     element={<TrainerUpdate />} />
-        <Route path="/admin/notice"            element={<Notice />} />
-        <Route path="/admin/petstatus"         element={<PetStatus />} />
+        {/* 어드민 페이지 - Header/Footer 없음, 토큰 없으면 로그인으로 */}
+        <Route path="/admin"               element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/usermanage"    element={<AdminRoute><UserManage /></AdminRoute>} />
+        <Route path="/admin/service"       element={<AdminRoute><Service /></AdminRoute>} />
+        <Route path="/admin/roominsert"    element={<AdminRoute><RoomInsert /></AdminRoute>} />
+        <Route path="/admin/roomup"        element={<AdminRoute><RoomUpdate /></AdminRoute>} />
+        <Route path="/admin/serviceinsert" element={<AdminRoute><ServiceInsert /></AdminRoute>} />
+        <Route path="/admin/serviceupdate" element={<AdminRoute><ServiceUpdate /></AdminRoute>} />
+        <Route path="/admin/trainer"       element={<AdminRoute><Trainer /></AdminRoute>} />
+        <Route path="/admin/trainerinsert" element={<AdminRoute><TrainerInsert /></AdminRoute>} />
+        <Route path="/admin/trainerupdate" element={<AdminRoute><TrainerUpdate /></AdminRoute>} />
+        <Route path="/admin/notice"        element={<AdminRoute><Notice /></AdminRoute>} />
+        <Route path="/admin/petstatus"     element={<AdminRoute><PetStatus /></AdminRoute>} />
 
       </Routes>
     </BrowserRouter>

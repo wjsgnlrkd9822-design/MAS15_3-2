@@ -25,6 +25,9 @@ public interface CouponMapper {
     // 쿠폰 단건 조회
     Coupon selectCoupon(Long couponNo);
 
+    // 쿠폰 삭제 (어드민)
+    int deleteCoupon(Long couponNo);
+
     // 이번 달 월정 쿠폰 발급 여부 확인
     int countMonthlyIssuedCoupon(Long userNo);
 

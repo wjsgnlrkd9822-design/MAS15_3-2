@@ -3,27 +3,81 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aloha.project.mapper.CouponMapper">
-<!--  쿠폰 발급  -->
-<insert id="insertCoupon" useGeneratedKeys="true" keyProperty="couponNo"> INSERT INTO coupon (user_no, coupon_type, grade, discount_amount, is_used, issued_at, expired_at) VALUES (#{userNo}, #{couponType}, #{grade}, #{discountAmount}, 0, NOW(), #{expiredAt}) </insert>
-<!--  미사용 쿠폰 목록  -->
-<select id="selectAvailableCoupons" resultType="Coupon"> SELECT * FROM coupon WHERE user_no = #{userNo} AND is_used = 0 AND expired_at > NOW() ORDER BY issued_at DESC </select>
-<!--  전체 쿠폰 목록  -->
-<select id="selectAllCoupons" resultType="Coupon"> SELECT * FROM coupon WHERE user_no = #{userNo} ORDER BY issued_at DESC </select>
-<!--  쿠폰 사용 처리  -->
-<update id="useCoupon"> UPDATE coupon SET is_used = 1, used_at = NOW(), reservation_no = #{reservationNo} WHERE coupon_no = #{couponNo} AND is_used = 0 </update>
-<!--  쿠폰 단건 조회  -->
-<select id="selectCoupon" resultType="Coupon"> SELECT * FROM coupon WHERE coupon_no = #{couponNo} </select>
-<!--  이번 달 월정 쿠폰 발급 여부  -->
-<select id="countMonthlyIssuedCoupon" resultType="int"> SELECT COUNT(*) FROM coupon WHERE user_no = #{userNo} AND coupon_type = 'MONTHLY' AND YEAR(issued_at) = YEAR(NOW()) AND MONTH(issued_at) = MONTH(NOW()) </select>
-<!--  신규가입 쿠폰 발급 여부  -->
-<select id="countNewUserCoupon" resultType="int"> SELECT COUNT(*) FROM coupon WHERE user_no = #{userNo} AND coupon_type = 'NEW_USER' </select>
-<!--  전체 회원 no 목록 (스케줄러용)  -->
-<select id="selectAllUserNos" resultType="Long"> SELECT no FROM users </select>
-<!--  ============================== 등급 ==============================  -->
-<!--  회원 등급 조회  -->
-<select id="selectUserGrade" resultType="UserGrade"> SELECT * FROM user_grade WHERE no = #{userNo} </select>
-<!--  회원 등급 등록  -->
-<insert id="insertUserGrade"> INSERT INTO user_grade (no, grade, total_sales) VALUES (#{no}, #{grade}, #{totalSales}) </insert>
-<!--  회원 등급 업데이트  -->
-<update id="updateUserGrade"> UPDATE user_grade SET grade = #{grade}, total_sales = #{totalSales} WHERE no = #{no} </update>
+
+    <!-- 쿠폰 발급 -->
+    <insert id="insertCoupon" useGeneratedKeys="true" keyProperty="couponNo">
+        INSERT INTO coupon (user_no, coupon_type, grade, discount_amount, is_used, issued_at, expired_at)
+        VALUES (#{userNo}, #{couponType}, #{grade}, #{discountAmount}, 0, NOW(), #{expiredAt})
+    </insert>
+
+    <!-- 미사용 쿠폰 목록 -->
+    <select id="selectAvailableCoupons" resultType="Coupon">
+        SELECT * FROM coupon
+        WHERE user_no = #{userNo} AND is_used = 0 AND expired_at > NOW()
+        ORDER BY issued_at DESC
+    </select>
+
+    <!-- 전체 쿠폰 목록 -->
+    <select id="selectAllCoupons" resultType="Coupon">
+        SELECT * FROM coupon
+        WHERE user_no = #{userNo}
+        ORDER BY issued_at DESC
+    </select>
+
+    <!-- 쿠폰 사용 처리 -->
+    <update id="useCoupon">
+        UPDATE coupon
+        SET is_used = 1, used_at = NOW(), reservation_no = #{reservationNo}
+        WHERE coupon_no = #{couponNo} AND is_used = 0
+    </update>
+
+    <!-- 쿠폰 단건 조회 -->
+    <select id="selectCoupon" resultType="Coupon">
+        SELECT * FROM coupon WHERE coupon_no = #{couponNo}
+    </select>
+
+    <!-- 쿠폰 삭제 -->
+    <delete id="deleteCoupon">
+        DELETE FROM coupon WHERE coupon_no = #{couponNo}
+    </delete>
+
+    <!-- 이번 달 월정 쿠폰 발급 여부 -->
+    <select id="countMonthlyIssuedCoupon" resultType="int">
+        SELECT COUNT(*) FROM coupon
+        WHERE user_no = #{userNo}
+          AND coupon_type = 'MONTHLY'
+          AND YEAR(issued_at) = YEAR(NOW())
+          AND MONTH(issued_at) = MONTH(NOW())
+    </select>
+
+    <!-- 신규가입 쿠폰 발급 여부 -->
+    <select id="countNewUserCoupon" resultType="int">
+        SELECT COUNT(*) FROM coupon
+        WHERE user_no = #{userNo} AND coupon_type = 'NEW_USER'
+    </select>
+
+    <!-- 전체 회원 no 목록 (스케줄러용) -->
+    <select id="selectAllUserNos" resultType="Long">
+        SELECT no FROM users
+    </select>
+
+    <!-- ============================== 등급 ============================== -->
+
+    <!-- 회원 등급 조회 -->
+    <select id="selectUserGrade" resultType="UserGrade">
+        SELECT * FROM user_grade WHERE no = #{userNo}
+    </select>
+
+    <!-- 회원 등급 등록 -->
+    <insert id="insertUserGrade">
+        INSERT INTO user_grade (no, grade, total_sales)
+        VALUES (#{no}, #{grade}, #{totalSales})
+    </insert>
+
+    <!-- 회원 등급 업데이트 -->
+    <update id="updateUserGrade">
+        UPDATE user_grade SET grade = #{grade}, total_sales = #{totalSales}
+        WHERE no = #{no}
+    </update>
+
 </mapper>

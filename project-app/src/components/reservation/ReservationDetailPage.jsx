@@ -7,7 +7,21 @@ import { getRoomDetail } from '../../apis/roomApi';
 import { insertReservation, getMyPets } from '../../apis/reservationApi';
 import { useRoomSchedule } from '../../hooks/useRoomSchedule';
 import { formatDate, formatLocalDate, calcNights } from '../../utils/dateUtils';
+import CouponSelect from './CouponSelect';
 import '../../assets/reservation-detail.css'
+
+// JWT 토큰에서 userNo 파싱
+function getUserNoFromToken() {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) return null
+    const base64 = token.replace('Bearer ', '').split('.')[1]
+    const payload = JSON.parse(atob(base64))
+    return payload.uno ? Number(payload.uno) : null
+  } catch (e) {
+    return null
+  }
+}
 
 export default function ReservationDetailPage() {
   const { roomNo } = useParams();
@@ -23,9 +37,15 @@ export default function ReservationDetailPage() {
   const [selectedServices, setSelectedServices] = useState(new Set());
   const [petNo, setPetNo] = useState('');
 
+  // 쿠폰 상태
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [selectedCouponNo, setSelectedCouponNo] = useState(null);
+
+  // 토큰에서 userNo 추출
+  const userNo = getUserNoFromToken();
+
   const { checkinUnavailable, checkoutUnavailable, validateDates, findNextReservationStart } = useRoomSchedule(roomNo);
 
-  // 초기 데이터 로드
   useEffect(() => {
     getRoomDetail(roomNo).then((data) => {
       if (data.success) {
@@ -39,6 +59,12 @@ export default function ReservationDetailPage() {
     }).catch(console.error);
   }, [roomNo]);
 
+  // 쿠폰 적용 콜백
+  const handleCouponApply = (discount, couponNo) => {
+    setDiscountAmount(discount);
+    setSelectedCouponNo(couponNo);
+  };
+
   // ─── 계산 ───
   const nights = calcNights(checkin, checkout);
   const roomTotal = nights * (room?.roomPrice || 0);
@@ -46,25 +72,17 @@ export default function ReservationDetailPage() {
     const s = serviceList.find((s) => s.serviceNo === no);
     return sum + (s?.servicePrice || 0);
   }, 0);
-  const total = roomTotal + serviceTotal;
+  const totalBeforeDiscount = roomTotal + serviceTotal;
+  const total = Math.max(0, totalBeforeDiscount - discountAmount);
 
-  // ─── 날짜 불가 여부 판별 ───
-  const isCheckinUnavailable = (date) => {
-    const str = formatLocalDate(date);
-    return checkinUnavailable.includes(str);
-  };
-  const isCheckoutUnavailable = (date) => {
-    const str = formatLocalDate(date);
-    return checkoutUnavailable.includes(str);
-  };
+  const isCheckinUnavailable  = (date) => checkinUnavailable.includes(formatLocalDate(date));
+  const isCheckoutUnavailable = (date) => checkoutUnavailable.includes(formatLocalDate(date));
 
-  // 체크인 변경 시 체크아웃 maxDate 재설정
   const handleCheckinChange = (date) => {
     setCheckin(date);
     if (checkout && checkout <= date) setCheckout(null);
   };
 
-  // 서비스 카드 토글
   const toggleService = (serviceNo) => {
     setSelectedServices((prev) => {
       const next = new Set(prev);
@@ -73,7 +91,6 @@ export default function ReservationDetailPage() {
     });
   };
 
-  // 서비스 아이콘
   const serviceIconMap = {
     '그루밍 서비스': 'fa-scissors',
     '프리미엄 식사': 'fa-utensils',
@@ -81,23 +98,24 @@ export default function ReservationDetailPage() {
     '사진 촬영':    'fa-camera',
   };
 
-  // ─── 예약하기 ───
   const handleReserve = async () => {
     if (!checkin || !checkout) { alert('체크인/체크아웃 날짜를 선택해주세요.'); return; }
-    if (checkout <= checkin) { alert('체크아웃 날짜는 체크인 날짜보다 이후여야 합니다.'); return; }
+    if (checkout <= checkin)   { alert('체크아웃 날짜는 체크인 날짜보다 이후여야 합니다.'); return; }
     if (!validateDates(checkin, checkout)) { alert('선택하신 날짜에 이미 예약이 있습니다. 다른 날짜를 선택해주세요.'); return; }
     if (!petNo) { alert('반려견을 선택해주세요.'); return; }
     if (!window.confirm('정말 예약하시겠습니까?')) return;
 
     try {
       await insertReservation(roomNo, {
-        checkin: formatLocalDate(checkin),
-        checkout: formatLocalDate(checkout),
+        checkin:    formatLocalDate(checkin),
+        checkout:   formatLocalDate(checkout),
         nights,
         total,
         totalPrice: total,
         serviceIds: [...selectedServices].join(','),
         petNo,
+        couponNo:   selectedCouponNo,
+        discount:   discountAmount,
       });
       alert('예약이 완료되었습니다!');
       navigate('/');
@@ -110,7 +128,6 @@ export default function ReservationDetailPage() {
 
   if (!room) return <div style={{ padding: 40, textAlign: 'center' }}>로딩 중...</div>;
 
-  // 체크아웃 최대 날짜 (다음 예약 시작일 전날)
   const nextResStart = findNextReservationStart(checkin);
   const checkoutMaxDate = nextResStart ? new Date(nextResStart.getTime() - 86400000) : undefined;
 
@@ -132,7 +149,6 @@ export default function ReservationDetailPage() {
             </div>
 
             <div className="calendar-row">
-              {/* 체크인 달력 */}
               <div className="calendar-box">
                 <div className="calendar-label">
                   <i className="fa-solid fa-right-to-bracket" />
@@ -143,13 +159,11 @@ export default function ReservationDetailPage() {
                   onChange={handleCheckinChange}
                   minDate={new Date()}
                   filterDate={(d) => !isCheckinUnavailable(d)}
-                  inline
-                  locale={ko}
+                  inline locale={ko}
                   dayClassName={(d) => isCheckinUnavailable(d) ? 'unavailable' : undefined}
                 />
               </div>
 
-              {/* 체크아웃 달력 */}
               <div className="calendar-box">
                 <div className="calendar-label">
                   <i className="fa-solid fa-right-from-bracket" />
@@ -161,14 +175,12 @@ export default function ReservationDetailPage() {
                   minDate={checkin ? new Date(checkin.getTime() + 86400000) : new Date()}
                   maxDate={checkoutMaxDate}
                   filterDate={(d) => !isCheckoutUnavailable(d)}
-                  inline
-                  locale={ko}
+                  inline locale={ko}
                   dayClassName={(d) => isCheckoutUnavailable(d) ? 'unavailable' : undefined}
                 />
               </div>
             </div>
 
-            {/* ─── 범례 ─── */}
             <div className="calendar-legend">
               {[
                 { cls: 'available',   label: '예약 가능' },
@@ -233,9 +245,7 @@ export default function ReservationDetailPage() {
                   <div className="service-bottom">
                     <p className="service-desc">{svc.description}</p>
                     <input
-                      type="checkbox"
-                      className="service-checkbox"
-                      readOnly
+                      type="checkbox" className="service-checkbox" readOnly
                       checked={selectedServices.has(svc.serviceNo)}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -262,6 +272,27 @@ export default function ReservationDetailPage() {
             <span>선택 서비스</span>
             <span>{serviceTotal.toLocaleString()}원</span>
           </div>
+
+          {/* 쿠폰 선택 - 로그인한 경우만 표시 */}
+          {userNo ? (
+            <CouponSelect
+              userNo={userNo}
+              totalPrice={totalBeforeDiscount}
+              onApply={handleCouponApply}
+            />
+          ) : (
+            <div style={{ fontSize: '0.85rem', color: '#9ca3af', margin: '8px 0' }}>
+              🎟 로그인하면 쿠폰을 사용할 수 있어요!
+            </div>
+          )}
+
+          {/* 할인 금액 표시 */}
+          {discountAmount > 0 && (
+            <div className="summary-row" style={{ color: '#e53e3e' }}>
+              <span>🎟 쿠폰 할인</span>
+              <span>-{discountAmount.toLocaleString()}원</span>
+            </div>
+          )}
 
           <div className="summary-divider" />
 

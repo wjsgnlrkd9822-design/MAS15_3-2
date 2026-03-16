@@ -32,42 +32,42 @@ public class NoticeController {
     
     private final NoticeService noticeService;
 
-    @GetMapping("/noticelist")
-    public String getMethodName(Model model) {
-        try{
-        List<Notice> noticeList= noticeService.list();
-        model.addAttribute("noticeList",noticeList);
-        System.out.println("noticeList = " + noticeList);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return "notice/notice_list";
-    }
+    // @GetMapping("/noticelist")
+    // public String getMethodName(Model model) {
+    //     try{
+    //     List<Notice> noticeList= noticeService.list();
+    //     model.addAttribute("noticeList",noticeList);
+    //     System.out.println("noticeList = " + noticeList);
+    //     }catch(Exception e){
+    //         e.printStackTrace();
+    //     }
+    //     return "notice/notice_list";
+    // }
     
 
-    @GetMapping("/noticedetail")
-    public String detail(@RequestParam("no")Long no, Model model){ 
-     try{
-        Notice notice = noticeService.select(no);
-        model.addAttribute("notice",notice);
-        System.out.println("notice = " + notice);
-         }catch(Exception e){
-        e.printStackTrace();
-         }
-        return "notice/notice_view";
-    }
+    // @GetMapping("/noticedetail")
+    // public String detail(@RequestParam("no")Long no, Model model){ 
+    //  try{
+    //     Notice notice = noticeService.select(no);
+    //     model.addAttribute("notice",notice);
+    //     System.out.println("notice = " + notice);
+    //      }catch(Exception e){
+    //     e.printStackTrace();
+    //      }
+    //     return "notice/notice_view";
+    // }
 
-    @GetMapping("/noticeupdate")
-        public String update(@RequestParam("no")Long no, Model model){ 
-     try{
-        Notice notice = noticeService.select(no);
-        model.addAttribute("notice",notice);
-        System.out.println("notice = " + notice);
-        }catch(Exception e){
-        e.printStackTrace();
-        }
-        return "notice/notice_update";
-    }
+    // @GetMapping("/noticeupdate")
+    //     public String update(@RequestParam("no")Long no, Model model){ 
+    //  try{
+    //     Notice notice = noticeService.select(no);
+    //     model.addAttribute("notice",notice);
+    //     System.out.println("notice = " + notice);
+    //     }catch(Exception e){
+    //     e.printStackTrace();
+    //     }
+    //     return "notice/notice_update";
+    // }
 
     @PostMapping("/noticeup/{no}")
     @ResponseBody
@@ -111,7 +111,7 @@ public class NoticeController {
 public Map<String, Object> getNoticesApi() {
     Map<String, Object> result = new HashMap<>();
     try {
-        List<Notice> noticeList = noticeService.getRecentNotices(5);
+        List<Notice> noticeList = noticeService.list();  
         result.put("success", true);
         result.put("noticeList", noticeList);
     } catch (Exception e) {
@@ -138,5 +138,5 @@ public Map<String, Object> getNoticesApi() {
         return result;
     }
     
+    
 }
-
