@@ -10,58 +10,71 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/kakaopay")
 public class KakaoPayController {
 
     private final KakaoPayService kakaoPayService;
 
-    // 결제 준비 (마이페이지 결제 버튼 클릭 시)
-    @PostMapping("/ready")
-public String ready(@RequestParam("resNo") Long resNo,
-                    @RequestParam("totalPrice") int totalPrice,
-                    HttpSession session) {
+    // 결제 준비
+    @PostMapping("/kakaopay/ready")
+    public String ready(@RequestParam("resNo") Long resNo,
+                        @RequestParam("totalPrice") int totalPrice,
+                        HttpSession session) {
 
-    KakaoPayReadyResponse response = kakaoPayService.ready(resNo, totalPrice, session);
-    return "redirect:" + response.getNext_redirect_pc_url();
-}
-
-    // 결제 성공
-    @GetMapping("/success")
-    public String success(@RequestParam("pg_token") String pgToken,
-                          HttpSession session,
-                          Model model) {
-
-        KakaoPayApproveResponse response = kakaoPayService.approve(pgToken, session);
-        model.addAttribute("approve", response);
-
-        log.info("결제 완료 - 상품명: {}, 금액: {}", response.getItem_name(), response.getAmount().getTotal());
-
-        return "kakaopay/success";
+        KakaoPayReadyResponse response = kakaoPayService.ready(resNo, totalPrice, session);
+        return "redirect:" + response.getNext_redirect_pc_url();
     }
 
+ 
+@GetMapping("/kakaopay/success")
+public String success(@RequestParam("pg_token") String pgToken,
+                      @RequestParam(value = "partner_order_id", required = false) String partnerOrderId,
+                      HttpSession session) {
+
+    if (session.getAttribute("resNo") == null && partnerOrderId != null) {
+        session.setAttribute("resNo", Long.parseLong(partnerOrderId));
+    }
+
+    KakaoPayApproveResponse response = kakaoPayService.approve(pgToken, session);
+
+    try {
+        String itemName = URLEncoder.encode(response.getItem_name(), StandardCharsets.UTF_8);
+        String approvedAt = URLEncoder.encode(response.getApproved_at(), StandardCharsets.UTF_8);
+
+        return "redirect:http://localhost:5173/kakaopay/success"
+             + "?item_name=" + itemName
+             + "&total=" + response.getAmount().getTotal()
+             + "&method=" + response.getPayment_method_type()
+             + "&approved_at=" + approvedAt;
+    } catch (Exception e) {
+        return "redirect:http://localhost:5173/mypage";
+    }
+}
+
     // 결제 실패
-    @GetMapping("/fail")
+    @GetMapping("/kakaopay/fail")
     public String fail() {
         log.warn("결제 실패");
         return "kakaopay/fail";
     }
 
     // 결제 취소
-    @GetMapping("/cancel")
+    @GetMapping("/kakaopay/cancel")
     public String cancel() {
         log.warn("결제 취소");
         return "kakaopay/cancel";
     }
 
     // 환불
-    @PostMapping("/refund")
+    @PostMapping("/kakaopay/refund")
     public String refund(@RequestParam("resNo") Long resNo,
-                        @RequestParam("cancelAmount") int cancelAmount,
-                        Model model) {
+                         @RequestParam("cancelAmount") int cancelAmount,
+                         Model model) {
 
         KakaoPayCancelResponse response = kakaoPayService.cancel(resNo, cancelAmount);
         model.addAttribute("cancel", response);
@@ -70,5 +83,4 @@ public String ready(@RequestParam("resNo") Long resNo,
 
         return "kakaopay/refund";
     }
-
 }

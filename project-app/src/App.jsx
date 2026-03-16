@@ -24,6 +24,7 @@ import Login from "./pages/Login"
 import NoticeDetail from './pages/notice/Noticedetail'
 import NoticeEdit from './pages/notice/Noticeedit'
 import NoticeList from './pages/notice/Noticelist'
+import KakaoPaySuccess from './pages/KakaoPaySuccess'
 
 // 일반 레이아웃 (Header + Footer 있음)
 function UserLayout({ children }) {
@@ -91,6 +92,7 @@ export default function App() {
         <Route path="/admin/trainerupdate" element={<AdminRoute><TrainerUpdate /></AdminRoute>} />
         <Route path="/admin/notice"        element={<AdminRoute><Notice /></AdminRoute>} />
         <Route path="/admin/petstatus"     element={<AdminRoute><PetStatus /></AdminRoute>} />
+        <Route path="/kakaopay/success" element={<KakaoPaySuccess />} />
 
       </Routes>
     </BrowserRouter>

@@ -13,8 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,14 +35,9 @@ public class KakaoPayServiceImpl implements KakaoPayService {
     @Value("${kakaopay.cancel-url}")
     private String cancelUrl;
 
-    // 결제 성공/실패/취소 URL
-//     private static final String APPROVAL_URL = "http://localhost:8080/kakaopay/success";
-//     private static final String FAIL_URL     = "http://localhost:8080/kakaopay/fail";
-//     private static final String CANCEL_URL   = "http://localhost:8080/kakaopay/cancel";
-    private static final String APPROVAL_URL = "http://192.168.30.36:8080/kakaopay/success";
-    private static final String FAIL_URL     = "http://192.168.30.36:8080/kakaopay/fail";
-    private static final String CANCEL_URL   = "http://192.168.30.36:8080/kakaopay/cancel";
-
+    private static final String APPROVAL_URL = "http://localhost:8080/kakaopay/success";
+    private static final String FAIL_URL     = "http://localhost:8080/kakaopay/fail";
+    private static final String CANCEL_URL   = "http://localhost:8080/kakaopay/cancel";
 
     // 결제 준비 (Ready)
     @Override
@@ -52,8 +45,8 @@ public class KakaoPayServiceImpl implements KakaoPayService {
 
         KakaoPayReadyRequest request = new KakaoPayReadyRequest();
         request.setCid(cid);
-        request.setPartner_order_id(String.valueOf(resNo));   // 예약 번호
-        request.setPartner_user_id("USER");                   // 추후 실제 유저 ID로 변경
+        request.setPartner_order_id(String.valueOf(resNo));
+        request.setPartner_user_id("USER");
         request.setItem_name("펫 호텔 예약");
         request.setQuantity(1);
         request.setTotal_amount(totalPrice);
@@ -72,12 +65,12 @@ public class KakaoPayServiceImpl implements KakaoPayService {
                 .bodyToMono(KakaoPayReadyResponse.class)
                 .block();
 
-        // tid 세션 저장 (Approve 때 필요)
+        // 세션 + DB 둘 다 저장 (팝업 세션 문제 대비)
         session.setAttribute("tid", response.getTid());
         session.setAttribute("resNo", resNo);
+        reservationService.updateTid(resNo, response.getTid());
 
         log.info("카카오페이 결제 준비 완료 - tid: {}", response.getTid());
-
         return response;
     }
 
@@ -85,8 +78,21 @@ public class KakaoPayServiceImpl implements KakaoPayService {
     @Override
     public KakaoPayApproveResponse approve(String pgToken, HttpSession session) {
 
-        String tid   = (String) session.getAttribute("tid");
-        Long resNo   = (Long) session.getAttribute("resNo");
+        String tid = (String) session.getAttribute("tid");
+        Long resNo = (Long) session.getAttribute("resNo");
+
+        log.info("approve 호출 - tid: {}, resNo: {}", tid, resNo);
+
+        // 세션에 없으면 DB에서 조회 (팝업 세션 문제 대비)
+        if (tid == null && resNo != null) {
+            tid = reservationService.getTidByResNo(resNo);
+            log.info("DB에서 tid 조회 - tid: {}", tid);
+        }
+
+        if (tid == null || resNo == null) {
+            log.error("tid 또는 resNo가 null - tid: {}, resNo: {}", tid, resNo);
+            throw new RuntimeException("결제 정보가 없습니다. 다시 시도해주세요.");
+        }
 
         KakaoPayApproveResponse response = WebClient.create()
                 .post()
@@ -107,10 +113,8 @@ public class KakaoPayServiceImpl implements KakaoPayService {
         log.info("카카오페이 결제 승인 완료 - aid: {}", response.getAid());
 
         reservationService.updateReservationStatus(resNo, "결제완료");
-
         reservationService.updateTid(resNo, tid);
 
-        // 세션 정리
         session.removeAttribute("tid");
         session.removeAttribute("resNo");
 
@@ -118,33 +122,29 @@ public class KakaoPayServiceImpl implements KakaoPayService {
     }
 
     // 결제 취소 (Cancel)
-@Override
-public KakaoPayCancelResponse cancel(Long resNo, int cancelAmount) {
+    @Override
+    public KakaoPayCancelResponse cancel(Long resNo, int cancelAmount) {
 
-    // DB에서 tid 조회
-    String tid = reservationService.getTidByResNo(resNo);
+        String tid = reservationService.getTidByResNo(resNo);
 
-    KakaoPayCancelResponse response = WebClient.create()
-            .post()
-            .uri(cancelUrl)
-            .header(HttpHeaders.AUTHORIZATION, "SECRET_KEY " + secretKey)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(java.util.Map.of(
-                    "cid",            cid,
-                    "tid",            tid,
-                    "cancel_amount",  cancelAmount,
-                    "cancel_tax_free_amount", 0
-            ))
-            .retrieve()
-            .bodyToMono(KakaoPayCancelResponse.class)
-            .block();
+        KakaoPayCancelResponse response = WebClient.create()
+                .post()
+                .uri(cancelUrl)
+                .header(HttpHeaders.AUTHORIZATION, "SECRET_KEY " + secretKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(java.util.Map.of(
+                        "cid",            cid,
+                        "tid",            tid,
+                        "cancel_amount",  cancelAmount,
+                        "cancel_tax_free_amount", 0
+                ))
+                .retrieve()
+                .bodyToMono(KakaoPayCancelResponse.class)
+                .block();
 
-    log.info("카카오페이 환불 완료 - tid: {}", tid);
+        log.info("카카오페이 환불 완료 - tid: {}", tid);
+        reservationService.updateReservationStatus(resNo, "환불");
 
-    // status 환불로 변경
-    reservationService.updateReservationStatus(resNo, "환불");
-
-    return response;
-}
-
+        return response;
+    }
 }
