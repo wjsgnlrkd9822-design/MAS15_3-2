@@ -22,7 +22,7 @@ export default function NoticeModal({ noticeList = [] }) {
       <button
         onClick={open}
         style={{
-          position: 'fixed', bottom: 30, right: 30,
+          position: 'fixed', bottom: 100, right: 30,
           width: 60, height: 60,
           background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
           borderRadius: '50%', border: 'none', cursor: 'pointer',

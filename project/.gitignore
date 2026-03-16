@@ -36,3 +36,20 @@ out/
 ### VS Code ###
 .vscode/
 application.properties
+.env
+```
+
+---
+
+**이후 순서:**
+
+**1. API 키 값 비우기**
+
+`application.properties` 33번째 줄:
+```
+openai.api.key=
+```
+
+`project-app/.env` 1번째 줄:
+```
+OPENAI_API_KEY=
