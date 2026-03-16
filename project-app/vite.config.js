@@ -15,7 +15,6 @@ export default defineConfig({
       '/noticelist': 'http://localhost:8080',
       '/uploads': 'http://localhost:8080',
       '/img': 'http://localhost:8080',
-      '/pet': 'http://localhost:8080',
     }
   }
 })

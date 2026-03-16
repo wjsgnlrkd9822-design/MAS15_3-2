@@ -594,7 +594,7 @@
               });
 
               // 서비스 체크박스 가져오기
-              fetch('/api/room/services')
+              fetch('/api/rooms/services')
                 .then(res => res.json())
                 .then(services => {
                   const serviceContainer = document.getElementById('editServiceList');
@@ -810,7 +810,7 @@ function openViewModal(resNo) {
           img.style.display = "block";
 
           // 서비스 목록 가져오기
-          fetch('/api/room/services')
+          fetch('/api/rooms/services')
             .then(res => res.json())
             .then(services => {
 
