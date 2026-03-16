@@ -4,6 +4,13 @@
   box-sizing: border-box;
 }
 
+.container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
 html {
     scrollbar-gutter: stable;
 }

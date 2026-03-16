@@ -38,7 +38,7 @@ public class JwtTokenProvider {
     @Autowired
     private UserMapper userMapper;
 
-    // 👩‍💼➡🔐 토큰 생성
+    // 토큰 생성
     public String createToken(Long userNo, String username, List<String> roles) {
         byte[] signingKey = getSigningKey();
 
@@ -57,7 +57,7 @@ public class JwtTokenProvider {
         return jwt;
     }
 
-    // 🔐➡👩‍💼 토큰 해석
+    // 토큰 해석
     public UsernamePasswordAuthenticationToken getAuthentication(String authHeader) {
         if (authHeader == null || authHeader.length() == 0)
             return null;
@@ -136,7 +136,7 @@ public class JwtTokenProvider {
         return null;
     }
 
-    // 🔐❓ 토큰 유효성 검사
+    // 토큰 유효성 검사
     public boolean validateToken(String jwt) {
         try {
             Jws<Claims> claims = Jwts.parser()

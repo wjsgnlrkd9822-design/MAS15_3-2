@@ -28,6 +28,7 @@ const LoginForm = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData,
+        credentials: 'include',
       })
 
       if (response.ok) {
@@ -39,8 +40,8 @@ const LoginForm = () => {
         if (rememberId) localStorage.setItem('savedUsername', username)
         else localStorage.removeItem('savedUsername')
 
-        if (autoLogin) localStorage.setItem('savedUsername', username)
-          else localStorage.removeItem('saveUsername')
+        if (autoLogin) localStorage.setItem('autoLogin', 'true')
+          else localStorage.removeItem('autoLogin')
 
         navigate('/')
       } else {
@@ -110,7 +111,7 @@ const LoginForm = () => {
                 className='check-box-form'
                 type="checkbox"
                 checked={autoLogin}
-                onChange={(e) => setRememberId(e.target.checked)}
+                onChange={(e) => setAutoLogin(e.target.checked)}
               />
               &nbsp;자동 로그인
             </label>
