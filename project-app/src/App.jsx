@@ -21,6 +21,9 @@ import IntroducePage from "./components/introduce/IntroducePage"
 import Mypage from "./pages/Mypage"
 import Join from "./pages/Join"
 import Login from "./pages/Login"
+import NoticeDetail from './pages/notice/Noticedetail'
+import NoticeEdit from './pages/notice/Noticeedit'
+import NoticeList from './pages/notice/Noticelist'
 
 // 일반 레이아웃 (Header + Footer 있음)
 function UserLayout({ children }) {
@@ -55,6 +58,10 @@ export default function App() {
         <Route path="/login" element={<UserLayout><Login /></UserLayout>} />
         <Route path="/join" element={<UserLayout><Join /></UserLayout>} />
         <Route path="/mypage" element={<UserLayout><Mypage /></UserLayout>} />
+        <Route path="/noticelist"       element={<UserLayout><NoticeList /></UserLayout>} />
+<Route path="/noticedetail/:no" element={<UserLayout><NoticeDetail /></UserLayout>} />
+<Route path="/noticewrite"      element={<UserLayout><NoticeEdit /></UserLayout>} />
+<Route path="/noticeupdate/:no" element={<UserLayout><NoticeEdit /></UserLayout>} />
 
         {/* 어드민 페이지 - Header/Footer 없음, 토큰 없으면 로그인으로 */}
         <Route path="/admin"               element={<AdminRoute><AdminDashboard /></AdminRoute>} />

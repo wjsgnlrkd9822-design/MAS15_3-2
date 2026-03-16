@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss(),],
@@ -12,9 +11,10 @@ export default defineConfig({
       // 기존 Spring Boot 프록시 (그대로 유지)
       '/api': 'http://localhost:8080',
       '/logout': 'http://localhost:8080',
-      '/noticelist': 'http://localhost:8080',
       '/uploads': 'http://localhost:8080',
       '/img': 'http://localhost:8080',
+       '/noticeup/': 'http://localhost:8080',
+      '/noticedelete': 'http://localhost:8080',  
     }
   }
 })
