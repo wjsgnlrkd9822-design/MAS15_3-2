@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 axios.defaults.baseURL = 'http://localhost:8080'
 
 const getAuthHeader = () => {
-    const token = localStorage.getItem('token')
-    return token ? { Authorization: token } : {}
+  const token = localStorage.getItem('token')
+  return token ? { Authorization: token } : {}
 }
 
 // JWT에서 userNo 파싱
@@ -146,10 +146,10 @@ const UserSection = () => {
 // ============================
 const gradeInfo = {
   NEW_USER: { label: '신규회원', color: '#6b7280', bg: '#f3f4f6', emoji: '🌱' },
-  BRONZE:   { label: 'BRONZE',  color: '#92400e', bg: '#fef3c7', emoji: '🥉' },
-  SILVER:   { label: 'SILVER',  color: '#475569', bg: '#f1f5f9', emoji: '🥈' },
-  GOLD:     { label: 'GOLD',    color: '#b45309', bg: '#fffbeb', emoji: '🥇' },
-  VIP:      { label: 'VIP',     color: '#7c3aed', bg: '#f5f3ff', emoji: '👑' },
+  BRONZE: { label: 'BRONZE', color: '#92400e', bg: '#fef3c7', emoji: '🥉' },
+  SILVER: { label: 'SILVER', color: '#475569', bg: '#f1f5f9', emoji: '🥈' },
+  GOLD: { label: 'GOLD', color: '#b45309', bg: '#fffbeb', emoji: '🥇' },
+  VIP: { label: 'VIP', color: '#7c3aed', bg: '#f5f3ff', emoji: '👑' },
 }
 
 const GradeCouponSection = () => {
@@ -163,11 +163,11 @@ const GradeCouponSection = () => {
     // 등급 조회
     axios.get(`/api/coupon/grade/${userNo}`, { headers: getAuthHeader() })
       .then(res => setGrade(res.data))
-      .catch(() => {})
+      .catch(() => { })
     // 쿠폰 조회
     axios.get(`/api/coupon/all/${userNo}`, { headers: getAuthHeader() })
       .then(res => setCoupons(res.data))
-      .catch(() => {})
+      .catch(() => { })
   }, [userNo])
 
   const availableCoupons = coupons.filter(c => !c.used)
@@ -177,10 +177,10 @@ const GradeCouponSection = () => {
 
   const gradeNextInfo = {
     NEW_USER: '첫 결제 후 등급이 부여됩니다',
-    BRONZE:   '누적 30만원 달성 시 SILVER 승급',
-    SILVER:   '누적 70만원 달성 시 GOLD 승급',
-    GOLD:     '누적 150만원 달성 시 VIP 승급',
-    VIP:      '최고 등급입니다! 🎉',
+    BRONZE: '누적 30만원 달성 시 SILVER 승급',
+    SILVER: '누적 70만원 달성 시 GOLD 승급',
+    GOLD: '누적 150만원 달성 시 VIP 승급',
+    VIP: '최고 등급입니다! 🎉',
   }
 
   return (
@@ -366,7 +366,7 @@ const PetSection = () => {
 
   const handleEdit = async () => {
     const fd = buildFormData(); fd.append('petNo', editPetNo)
-    try { await axios.post('/api/pets/update', fd, { headers: getAuthHeader() }); alert('반려견 정보가 수정되었습니다.'); setEditOpen(false); loadPets() }
+    try { await axios.post('/api/pets/update', fd, { headers: getAuthHeader() }); alert('반려견 정보가 수정되었습니다.'); setEditOpen(false); loadPets() /* onPetUpdate() */ }
     catch { alert('반려견 수정 실패') }
   }
 
@@ -417,10 +417,11 @@ const ViewModal = ({ resNo, onClose }) => {
   useEffect(() => {
     Promise.all([
       axios.get(`/api/reservation/${resNo}`, { headers: getAuthHeader() }),
-      axios.get('/api/room/services', { headers: getAuthHeader() })
+      axios.get('/api/rooms/services', { headers: getAuthHeader() })
     ]).then(([resData, resServices]) => {
       setDetail(resData.data); setServices(resServices.data)
-      axios.get(`/api/room/${resData.data.roomNo}`, { headers: getAuthHeader() }).then(r => setRoom(r.data))
+      axios.get(`/api/rooms/${resData.data.roomNo}`, { headers: getAuthHeader() })
+           .then(r => setRoom(r.data.room))
     })
   }, [resNo])
 
@@ -487,12 +488,12 @@ const EditReservationModal = ({ resNo, onClose, onRefresh }) => {
   useEffect(() => {
     Promise.all([
       axios.get(`/api/reservation/${resNo}`, { headers: getAuthHeader() }),
-      axios.get('/api/room/services', { headers: getAuthHeader() })
+      axios.get('/api/rooms/services', { headers: getAuthHeader() })
     ]).then(([resData, resServices]) => {
       const d = resData.data
       setDetail(d); setCheckin(d.checkin); setCheckout(d.checkout)
       setSelectedSvcIds((d.serviceIds || []).map(String)); setAllServices(resServices.data)
-      axios.get(`/api/room/${d.roomNo}`, { headers: getAuthHeader() }).then(r => setRoom(r.data))
+      axios.get(`/api/rooms/${d.roomNo}`, { headers: getAuthHeader() }).then(r => setRoom(r.data.room))
     })
   }, [resNo])
 
@@ -574,7 +575,8 @@ const EditReservationModal = ({ resNo, onClose, onRefresh }) => {
 // ============================
 // 6. 예약 섹션
 // ============================
-const ReservationSection = () => {
+const ReservationSection = ( { refreshKey }) => {
+  useEffect(() => { loadReservations() }, [refreshKey])
   const [reservations, setReservations] = useState([])
   const [viewResNo, setViewResNo] = useState(null)
   const [editResNo, setEditResNo] = useState(null)
@@ -636,8 +638,8 @@ const ReservationSection = () => {
                       onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
                       onMouseLeave={e => e.currentTarget.style.background = res.status === '환불' ? '#f9fafb' : '#fff'}
                     >
-                      <td style={{ padding: '12px 16px' }}>#{res.resNo}</td>
-                      <td style={{ padding: '12px 16px' }}>🐶 {res.petName}</td>
+                      <td style={{ padding: '12px 16px' }}>{res.resNo}</td>
+                      <td style={{ padding: '12px 16px' }}>{res.petName}</td>
                       <td style={{ padding: '12px 16px' }}>{res.checkin}</td>
                       <td style={{ padding: '12px 16px' }}>{res.checkout}</td>
                       <td style={{ padding: '12px 16px', fontWeight: 600 }}>{res.totalPrice?.toLocaleString()}원</td>
@@ -669,6 +671,8 @@ const ReservationSection = () => {
 // MypageForm (최상단 조합)
 // ============================
 const MypageForm = () => {
+  const [refreshKey, setRefreshKey] = useState(0)
+  const refresh = () => setRefreshKey( k => k + 1)
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) { alert('로그인이 필요합니다.'); window.location.href = '/login' }
@@ -676,6 +680,8 @@ const MypageForm = () => {
 
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', fontFamily: "'Noto Sans KR', system-ui, sans-serif" }}>
+      <petSection onPetUpdate={refresh} />
+      <ReservationSection refreshKey={refreshKey} />
       <section style={{ display: 'flex', justifyContent: 'center', margin: '40px 0' }}>
         <div style={{ width: '100%', maxWidth: '1000px', padding: '32px 40px', background: '#fff', border: '1px solid #d1d5db', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,.05), 0 10px 20px rgba(0,0,0,.08)', textAlign: 'center' }}>
           <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px' }}>마이 페이지</h2>

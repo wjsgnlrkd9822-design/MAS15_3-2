@@ -467,7 +467,7 @@ public class MainController {
     /**
      * 서비스 목록 조회 (AJAX)
      */
-    @GetMapping("/api/room/services")
+    @GetMapping("/api/rooms/services")
     @ResponseBody
     public List<Map<String, Object>> getAllServices() {
         return hotelServiceService.getAllServices()
