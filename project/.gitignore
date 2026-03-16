@@ -52,4 +52,4 @@ openai.api.key=
 
 `project-app/.env` 1번째 줄:
 ```
-OPENAI_API_KEY=
+project/src/main/resources/application.properties:
