@@ -12,7 +12,6 @@ export async function getActiveReservation() {
 export async function insertReservation(roomNo, body) {
   const token = localStorage.getItem('token');
 
-  // ✅ form 파라미터 방식으로 변경
   const params = new URLSearchParams();
   params.append('checkin', body.checkin);
   params.append('checkout', body.checkout);
@@ -21,16 +20,16 @@ export async function insertReservation(roomNo, body) {
     body.serviceIds.split(',').filter(Boolean).forEach(id => params.append('serviceIds', id));
   }
 
-  const res = await fetch(`/pet/reservation/insert/${roomNo}`, {
+  // ✅ redirect: 'manual' - 리다이렉트를 따라가지 않음
+  await fetch(`/pet/reservation/insert/${roomNo}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': `Bearer ${token}`
     },
     body: params.toString(),
+    redirect: 'manual' // ✅ 추가
   });
-  if (!res.ok) throw new Error('예약 등록 실패');
-  return res.json();
 }
 
 // 특정 객실 예약 스케줄 조회

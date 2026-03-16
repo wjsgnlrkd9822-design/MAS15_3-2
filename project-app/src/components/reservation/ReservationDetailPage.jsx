@@ -118,11 +118,11 @@ export default function ReservationDetailPage() {
         discount:   discountAmount,
       });
       alert('예약이 완료되었습니다!');
-      navigate('/');
+      navigate('/mypage');
     } catch (e) {
       // ✅ 백엔드가 리다이렉트 응답을 보내서 생기는 오류는 무시하고 성공 처리
       alert('예약이 완료되었습니다!');
-      navigate('/');
+      navigate('/mypage');
     }
   };
 
