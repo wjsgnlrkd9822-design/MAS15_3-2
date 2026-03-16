@@ -680,8 +680,6 @@ const MypageForm = () => {
 
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', fontFamily: "'Noto Sans KR', system-ui, sans-serif" }}>
-      <petSection onPetUpdate={refresh} />
-      <ReservationSection refreshKey={refreshKey} />
       <section style={{ display: 'flex', justifyContent: 'center', margin: '40px 0' }}>
         <div style={{ width: '100%', maxWidth: '1000px', padding: '32px 40px', background: '#fff', border: '1px solid #d1d5db', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,.05), 0 10px 20px rgba(0,0,0,.08)', textAlign: 'center' }}>
           <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '8px' }}>마이 페이지</h2>
