@@ -27,6 +27,7 @@ import com.aloha.project.dto.HotelRoom;
 import com.aloha.project.dto.Pet;
 import com.aloha.project.dto.ReservationDto;
 import com.aloha.project.dto.Notice;
+import com.aloha.project.service.CouponService;
 import com.aloha.project.service.HotelRoomService;
 import com.aloha.project.service.HotelServiceService;
 import com.aloha.project.service.PetService;
@@ -40,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequiredArgsConstructor
 public class MainController {
-
+    private final CouponService couponService;
     private final PetService petService;
     private final HotelRoomService hotelRoomService;       
     private final HotelServiceService hotelServiceService; 
@@ -370,17 +371,25 @@ public class MainController {
     /**
      * 예약 생성
      */
-    @PostMapping("/pet/reservation/insert/{roomNo}")
-    public String insertReservation(
+  @PostMapping("/pet/reservation/insert/{roomNo}")
+    @ResponseBody
+    public Map<String, Object> insertReservation(
             @PathVariable("roomNo") Long roomNo,
             @RequestParam("checkin") String checkin,
             @RequestParam("checkout") String checkout,
             @RequestParam("petNo") Long petNo,
             @RequestParam(value="serviceIds", required=false) List<Long> serviceIds,
-            @AuthenticationPrincipal CustomUser customUser,
-            RedirectAttributes redirectAttributes
+            @RequestParam(value="couponNo", required=false) Long couponNo,
+            @RequestParam(value="discount", required=false, defaultValue="0") int discount,
+            @AuthenticationPrincipal CustomUser customUser
     ) {
-        if(customUser == null) return "redirect:/login";
+        Map<String, Object> result = new HashMap<>();
+
+        if (customUser == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
 
         Long userNo = customUser.getNo();
         LocalDate checkinDate = LocalDate.parse(checkin);
@@ -389,8 +398,9 @@ public class MainController {
         // 예약 가능 여부 체크
         boolean available = reservationService.isRoomAvailable(roomNo, checkinDate, checkoutDate);
         if (!available) {
-            redirectAttributes.addFlashAttribute("error", "선택하신 날짜에 이미 예약이 있습니다.");
-            return "redirect:/pet/reservation/" + roomNo;
+            result.put("success", false);
+            result.put("message", "선택하신 날짜에 이미 예약이 있습니다.");
+            return result;
         }
 
         LocalTime resTime = LocalTime.now();
@@ -401,27 +411,33 @@ public class MainController {
 
         // 서비스 가격 합산
         int serviceTotal = 0;
-        if(serviceIds != null) {
-            for(Long serviceNo : serviceIds) {
+        if (serviceIds != null) {
+            for (Long serviceNo : serviceIds) {
                 serviceTotal += reservationService.getServicePrice(serviceNo);
             }
         }
 
-        int totalPrice = roomPrice * nights + serviceTotal;
+        // 쿠폰 할인 적용
+        int totalPrice = Math.max(0, roomPrice * nights + serviceTotal - discount);
 
         // DB 저장
         reservationService.insert(userNo, petNo, roomNo, checkinDate, checkoutDate, resTime, totalPrice, serviceIds);
 
-        redirectAttributes.addFlashAttribute("checkin", checkin);
-        redirectAttributes.addFlashAttribute("checkout", checkout);
-        redirectAttributes.addFlashAttribute("nights", nights);
-        redirectAttributes.addFlashAttribute("total", totalPrice);
+        // 쿠폰 사용 처리
+        if (couponNo != null) {
+            try {
+                couponService.useCoupon(couponNo, null); // reservationNo는 insert 후 조회 필요시 추가
+            } catch (Exception e) {
+                log.warn("쿠폰 사용 처리 실패 - couponNo: {}", couponNo);
+            }
+        }
 
-        redirectAttributes.addFlashAttribute("successMsg", "예약이 완료되었습니다!");
-        redirectAttributes.addFlashAttribute("paymentMsg", "결제를 진행해주세요.");
-        return "redirect:/mypage";
+        result.put("success", true);
+        result.put("message", "예약이 완료되었습니다!");
+        result.put("nights", nights);
+        result.put("totalPrice", totalPrice);
+        return result;
     }
-
     /**
      * 체크아웃 처리
      */
