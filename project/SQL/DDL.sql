@@ -258,3 +258,5 @@ WHERE r.status = '예약중';
 DELETE FROM hotelservices WHERE service_no = 5;
 
 SELECT * FROM hotelservices;
+
+
