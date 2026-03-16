@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -41,9 +42,16 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         log.info("========== OAuth2 로그인 성공 ==========");
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String socialId = oAuth2User.getAttribute("id").toString();
-        String provider = "kakao";
+        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+    String provider = oauthToken.getAuthorizedClientRegistrationId(); // "kakao" 또는 "google"
+
+    OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+    String socialId;
+    if ("google".equals(provider)) {
+        socialId = oAuth2User.getAttribute("sub").toString();
+    } else {
+        socialId = oAuth2User.getAttribute("id").toString();
+    }
 
         User user;
 
@@ -70,12 +78,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String token = jwtTokenProvider.createToken(user.getNo(), user.getUsername(), roles);
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(
-            "{\"token\": \"" + token + "\", \"username\": \"" + user.getUsername() + "\"}"
-        );
+       response.sendRedirect("http://localhost:5173/oauth2/callback?token=Bearer " + token);
 
     }
 }
