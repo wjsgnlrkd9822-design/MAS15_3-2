@@ -44,6 +44,13 @@ function AdminRoute({ children }) {
   }
   return children
 }
+const AuthRoute = ({ children }) => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    return <Navigate to="/login" replace />
+  }
+  return children
+}
 
 export default function App() {
   return (
@@ -52,16 +59,24 @@ export default function App() {
 
         {/* 일반 페이지 - Header/Footer 있음 */}
         <Route path="/" element={<UserLayout><HomePage /></UserLayout>} />
-        <Route path="/pet/reservation" element={<UserLayout><RoomListPage /></UserLayout>} />
-        <Route path="/pet/reservation/:roomNo" element={<UserLayout><ReservationDetailPage /></UserLayout>} />
+              <Route path="/pet/reservation" element={
+          <AuthRoute>
+            <UserLayout><RoomListPage /></UserLayout>
+          </AuthRoute>
+        } />
+                <Route path="/pet/reservation/:roomNo" element={
+            <AuthRoute>
+              <UserLayout><ReservationDetailPage /></UserLayout>
+            </AuthRoute>
+          } />
         <Route path="/pet/introduce" element={<UserLayout><IntroducePage /></UserLayout>} />
         <Route path="/login" element={<UserLayout><Login /></UserLayout>} />
         <Route path="/join" element={<UserLayout><Join /></UserLayout>} />
         <Route path="/mypage" element={<UserLayout><Mypage /></UserLayout>} />
         <Route path="/noticelist"       element={<UserLayout><NoticeList /></UserLayout>} />
-<Route path="/noticedetail/:no" element={<UserLayout><NoticeDetail /></UserLayout>} />
-<Route path="/noticewrite"      element={<UserLayout><NoticeEdit /></UserLayout>} />
-<Route path="/noticeupdate/:no" element={<UserLayout><NoticeEdit /></UserLayout>} />
+        <Route path="/noticedetail/:no" element={<UserLayout><NoticeDetail /></UserLayout>} />
+        <Route path="/noticewrite"      element={<UserLayout><NoticeEdit /></UserLayout>} />
+        <Route path="/noticeupdate/:no" element={<UserLayout><NoticeEdit /></UserLayout>} />
 
         {/* 어드민 페이지 - Header/Footer 없음, 토큰 없으면 로그인으로 */}
         <Route path="/admin"               element={<AdminRoute><AdminDashboard /></AdminRoute>} />
