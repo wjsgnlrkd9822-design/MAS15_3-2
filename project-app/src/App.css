@@ -40,7 +40,6 @@
 .read-the-docs {
   color: #888;
 }
-@import "tailwindcss";
 
 #root {
   max-width: 100%;

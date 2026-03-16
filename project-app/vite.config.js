@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss(),],
   server: {
     proxy: {
       // ✅ 챗봇만 Node.js 서버(3001)로 분기 - 반드시 /api 보다 위에 있어야 함
