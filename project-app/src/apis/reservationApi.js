@@ -12,11 +12,14 @@ export async function getActiveReservation() {
 export async function insertReservation(roomNo, body) {
   const token = localStorage.getItem('token');
 
-  // ✅ form 파라미터 방식으로 변경
   const params = new URLSearchParams();
   params.append('checkin', body.checkin);
   params.append('checkout', body.checkout);
   params.append('petNo', body.petNo);
+  params.append('totalPrice', body.totalPrice);
+  params.append('nights', body.nights);
+  if (body.couponNo) params.append('couponNo', body.couponNo);
+  if (body.discount) params.append('discount', body.discount);
   if (body.serviceIds) {
     body.serviceIds.split(',').filter(Boolean).forEach(id => params.append('serviceIds', id));
   }
@@ -29,8 +32,12 @@ export async function insertReservation(roomNo, body) {
     },
     body: params.toString(),
   });
-  if (!res.ok) throw new Error('예약 등록 실패');
-  return res.json();
+
+  // 리다이렉트 응답도 성공으로 처리
+  if (res.ok || res.redirected || res.status === 302) {
+    return { success: true };
+  }
+  throw new Error('예약 등록 실패');
 }
 
 // 특정 객실 예약 스케줄 조회

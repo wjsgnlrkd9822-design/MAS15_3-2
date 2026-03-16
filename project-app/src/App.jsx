@@ -24,6 +24,7 @@ import Login from "./pages/Login"
 import NoticeDetail from './pages/notice/Noticedetail'
 import NoticeEdit from './pages/notice/Noticeedit'
 import NoticeList from './pages/notice/Noticelist'
+import KakaoPaySuccess from './pages/KakaoPaySuccess'
 import OAuth2Callback from './components/Login/OAuth2Callback'
 
 // 일반 레이아웃 (Header + Footer 있음)
@@ -45,6 +46,13 @@ function AdminRoute({ children }) {
   }
   return children
 }
+const AuthRoute = ({ children }) => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    return <Navigate to="/login" replace />
+  }
+  return children
+}
 
 export default function App() {
   return (
@@ -53,8 +61,16 @@ export default function App() {
 
         {/* 일반 페이지 - Header/Footer 있음 */}
         <Route path="/" element={<UserLayout><HomePage /></UserLayout>} />
-        <Route path="/pet/reservation" element={<UserLayout><RoomListPage /></UserLayout>} />
-        <Route path="/pet/reservation/:roomNo" element={<UserLayout><ReservationDetailPage /></UserLayout>} />
+              <Route path="/pet/reservation" element={
+          <AuthRoute>
+            <UserLayout><RoomListPage /></UserLayout>
+          </AuthRoute>
+        } />
+                <Route path="/pet/reservation/:roomNo" element={
+            <AuthRoute>
+              <UserLayout><ReservationDetailPage /></UserLayout>
+            </AuthRoute>
+          } />
         <Route path="/pet/introduce" element={<UserLayout><IntroducePage /></UserLayout>} />
         <Route path="/login" element={<UserLayout><Login /></UserLayout>} />
         <Route path="/join" element={<UserLayout><Join /></UserLayout>} />
@@ -78,6 +94,7 @@ export default function App() {
         <Route path="/admin/trainerupdate" element={<AdminRoute><TrainerUpdate /></AdminRoute>} />
         <Route path="/admin/notice"        element={<AdminRoute><Notice /></AdminRoute>} />
         <Route path="/admin/petstatus"     element={<AdminRoute><PetStatus /></AdminRoute>} />
+        <Route path="/kakaopay/success" element={<KakaoPaySuccess />} />
 
       </Routes>
     </BrowserRouter>
