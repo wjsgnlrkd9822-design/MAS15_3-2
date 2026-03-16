@@ -43,7 +43,7 @@ export default function CctvModal() {
       <button
         onClick={handleOpen}
         style={{
-          position: 'fixed', bottom: 110, right: 30,
+          position: 'fixed', bottom: 180, right: 30,
           width: 60, height: 60,
           background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
           borderRadius: '50%', border: 'none', cursor: 'pointer',

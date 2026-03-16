@@ -34,7 +34,9 @@ public class OAuthAttributes {
         if("kakao".equals(registrationId)) {
             return ofKakao(userNameAttributeName, attributes);
         }
-        
+        if("google".equals(registrationId)) {
+            return ofGoogle(userNameAttributeName, attributes);
+        }               
         return null;
     }
 
@@ -52,6 +54,19 @@ public class OAuthAttributes {
                               .email((String) kakaoAccount.get("email"))
                               .socialId(String.valueOf(attributes.get(userNameAttributeName)))
                               .provider("kakao")
+                              .attributes(attributes)
+                              .nameAttributeKey(userNameAttributeName)
+                              .build();
+    }
+
+    private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+        log.info("ofGoogle attributes: {}", attributes);
+
+        return OAuthAttributes.builder()
+                              .name((String) attributes.get("name"))
+                              .email((String) attributes.get("email"))
+                              .socialId(String.valueOf(attributes.get(userNameAttributeName)))
+                              .provider("google")
                               .attributes(attributes)
                               .nameAttributeKey(userNameAttributeName)
                               .build();

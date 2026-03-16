@@ -82,7 +82,7 @@ export default function ChatBot() {
           border: "none",
           cursor: "pointer",
           zIndex: 1100,
-          boxShadow: "0 4px 18px rgba(244,162,97,0.45)",
+          boxShadow: '0 4px 15px rgba(231,76,60,0.4)', zIndex: 999,
           fontSize: "24px",
           display: "flex",
           alignItems: "center",
