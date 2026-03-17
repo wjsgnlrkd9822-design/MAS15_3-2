@@ -14,17 +14,13 @@ import org.springframework.stereotype.Component;
 
 import com.aloha.project.dto.CustomUser;
 import com.aloha.project.dto.User;
-import com.aloha.project.dto.UserAuth;
 import com.aloha.project.mapper.UserMapper;
-
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +43,7 @@ public class JwtTokenProvider {
                 .header()
                     .add("typ", SecurityConstants.TOKEN_TYPE)
                 .and()
-                .expiration(new Date(System.currentTimeMillis() + 864000000)) // 10일
+                .expiration(new Date(System.currentTimeMillis() + 864000000))
                 .claim("uno", "" + userNo)
                 .claim("uid", username)
                 .claim("rol", roles)
@@ -58,83 +54,63 @@ public class JwtTokenProvider {
     }
 
     // 토큰 해석
-    public UsernamePasswordAuthenticationToken getAuthentication(String authHeader) {
-        if (authHeader == null || authHeader.length() == 0)
-            return null;
+    public UsernamePasswordAuthenticationToken getAuthentication(String jwt) {
 
-        try {
-            String jwt = authHeader.replace("Bearer ", "");
+    if (jwt == null || jwt.isEmpty())
+        return null;
 
-            Jws<Claims> parsedToken = Jwts.parser()
-                    .verifyWith(getShaKey())
-                    .build()
-                    .parseSignedClaims(jwt);
+    try {
+        Jws<Claims> parsedToken = Jwts.parser()
+                .verifyWith(getShaKey())
+                .build()
+                .parseSignedClaims(jwt);
 
-            log.info("parsedToken : " + parsedToken);
+        Claims claims = parsedToken.getPayload();
 
-            // 사용자 번호
-            String userNoStr = parsedToken.getPayload().get("uno").toString();
-            Long no = (userNoStr == null ? 0L : Long.parseLong(userNoStr));
-            log.info("userNo : " + no);
+        Long userNo = claims.get("uno") != null ? Long.parseLong(claims.get("uno").toString()) : null;
+        String username = claims.get("uid") != null ? claims.get("uid").toString() : null;
 
-            // 사용자 아이디
-            String username = parsedToken.getPayload().get("uid").toString();
-            log.info("username : " + username);
+        if (userNo == null || username == null) return null;
 
-            if (username == null || username.length() == 0)
-                return null;
+        List<SimpleGrantedAuthority> authorities;
+        Object rolObj = claims.get("rol");
 
-            // 권한
-            Claims claims = parsedToken.getPayload();
-            Object roles = claims.get("rol");
-            log.info("roles : " + roles);
-
-            User user = new User();
-            user.setNo(no);
-            user.setUsername(username);
-
-            List<UserAuth> authList = ((List<?>) roles)
-                    .stream()
-                    .map(auth -> UserAuth.builder()
-                            .username(username)
-                            .auth(auth.toString())
-                            .build())
+        if (rolObj instanceof List<?>) {
+            authorities = ((List<?>) rolObj).stream()
+                    .map(Object::toString)
+                    .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
-            user.setAuthList(authList);
-
-            List<SimpleGrantedAuthority> authorities = ((List<?>) roles)
-                    .stream()
-                    .map(auth -> new SimpleGrantedAuthority((String) auth))
-                    .collect(Collectors.toList());
-
-            // DB에서 추가 정보 조회
-            try {
-                User userInfo = userMapper.selectByNo(no);
-                if (userInfo != null) {
-                    user.setName(userInfo.getName());
-                    user.setEmail(userInfo.getEmail());
-                }
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                log.error("토큰 유효 -> DB 추가 정보 조회시 에러 발생...");
-            }
-
-            UserDetails userDetails = new CustomUser(user);
-
-            return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-
-        } catch (ExpiredJwtException e) {
-            log.warn("만료된 JWT : {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.warn("지원하지 않는 JWT : {}", e.getMessage());
-        } catch (MalformedJwtException e) {
-            log.warn("잘못된 JWT : {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.warn("JWT 클레임이 비어있음 : {}", e.getMessage());
+        } else {
+            authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
         }
 
-        return null;
+        User user = new User();
+        user.setNo(userNo);
+        user.setUsername(username);
+
+        User dbUser = userMapper.selectByNo(userNo);
+        if (dbUser != null) {
+            user.setName(dbUser.getName());
+            user.setEmail(dbUser.getEmail());
+        } else {
+            user.setName(username);
+            user.setEmail("no-email@aloha.com");
+        }
+
+        UserDetails userDetails = new CustomUser(user);
+
+        return new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                authorities
+        );
+
+    } catch (Exception e) {
+        log.warn("JWT 인증 실패: {}", e.getMessage());
     }
+
+    return null;
+}
 
     // 토큰 유효성 검사
     public boolean validateToken(String jwt) {

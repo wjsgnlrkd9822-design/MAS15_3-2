@@ -58,9 +58,9 @@ public class SecurityConfig {
                 .requestMatchers("/**").permitAll()
         );
 
-        // 카카오 OAuth 로그인
+        // 소셜 OAuth 로그인
         http.oauth2Login(oauth2 -> oauth2
-    .loginPage("http://localhost:5173/login")  // React 로그인 페이지로
+    .loginPage("http://localhost:5173/login")
     .userInfoEndpoint(userInfo -> userInfo
             .userService(customOAuth2UserService))
     .successHandler(oAuth2LoginSuccessHandler)

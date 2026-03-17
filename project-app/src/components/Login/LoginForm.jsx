@@ -120,7 +120,7 @@ const LoginForm = () => {
           {error && <p style={styles.error}>{error}</p>}
           {success && <p style={styles.successMsg}>{success}</p>}
 
-          <div className="grid gap-2">
+          <div className="grid gap-2 flex justify-center">
             <button type="submit"
                     className='w-full h-[42px] py-2.5 px-4 text-lg font-semibold 
                     text-white bg-gray-900 rounded-lg hover:bg-gray-800 
@@ -129,27 +129,30 @@ const LoginForm = () => {
 
             <hr style={{ margin: '4px 0' }} />
 
-            <a href="http://localhost:8080/oauth2/authorization/kakao" style={styles.kakaoBtn}>
+            <a href="http://localhost:8080/oauth2/authorization/kakao">
               <img
                 src="/img/kakao_login_medium_wide.png"
                 alt="카카오 로그인"
-                className='w-full h-[42px] cursor-pointer flex justify-center items-center 
-                hover:bg-gray-100 rounded shadow'
+                style={{ height: "45px", width: "auto"}}
                 onError={(e) => { e.target.style.display = 'none' }}
               />
             </a>
-            <a href="http://localhost:8080/oauth2/authorization/google"
-               className='h-[42px] flex items-center justify-center mx-auto px-2 py-3 my-4  
-                bg-white rounded shadow hover:bg-gray-100 text-sm border-black '>
-                  <div classname='w-5 h-5 mr-5' />
-                  <span className='text-black-54 font-semibold' >
-                    구글 계정으로 로그인
-                  </span>
+            <a href="http://localhost:8080/oauth2/authorization/google">
+              <img
+                src="/img/web_light_sq_SI@4x.png"
+                alt="구글 로그인"
+                style={{ height: "45px", width: "auto"}}
+                onError={(e) => { e.target.style.display = 'none' }}
+              />
             </a>
-
-
-                  
-
+            <a href="http://localhost:8080/oauth2/authorization/naver">
+                  <img
+                src="/img/NAVER_login_Light_KR_white_wide_H48.png"
+                alt="네이버 로그인"
+                style={{ height: "45px", width: "auto"}}
+                onError={(e) => { e.target.style.display = 'none' }}
+              />
+            </a>
 
 
             <div style={styles.links}>
