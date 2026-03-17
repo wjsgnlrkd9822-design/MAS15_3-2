@@ -78,7 +78,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String token = jwtTokenProvider.createToken(user.getNo(), user.getUsername(), roles);
 
-       response.sendRedirect("http://localhost:5173/oauth2/callback?token=Bearer " + token);
+       response.sendRedirect("http://localhost:5173/oauth2/callback?token=" + token);
 
     }
 }

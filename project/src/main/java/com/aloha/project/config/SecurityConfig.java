@@ -60,12 +60,12 @@ public class SecurityConfig {
 
         // 카카오 OAuth 로그인
         http.oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
-                .userInfoEndpoint(userInfo -> userInfo
-                        .userService(customOAuth2UserService))
-                .successHandler(oAuth2LoginSuccessHandler)
-                .failureUrl("/login?error=oauth2")
-        );
+    .loginPage("http://localhost:5173/login")  // React 로그인 페이지로
+    .userInfoEndpoint(userInfo -> userInfo
+            .userService(customOAuth2UserService))
+    .successHandler(oAuth2LoginSuccessHandler)
+    .failureUrl("http://localhost:5173/login?error=oauth2")  // 이것도
+);
 
         // 로그아웃
         http.logout(logout -> logout
