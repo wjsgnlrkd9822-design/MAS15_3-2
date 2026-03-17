@@ -26,6 +26,17 @@ public class CouponController {
 
     private final CouponService couponService;
 
+
+
+        @PostMapping("/grade/recalc/{userNo}")
+    public ResponseEntity<?> recalcGrade(@PathVariable("userNo") Long userNo) {
+        try {
+            couponService.updateGradeByReservation(userNo);
+            return ResponseEntity.ok("SUCCESS");
+        } catch (Exception e) {
+            return new ResponseEntity<>("FAIL", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     // 미사용 쿠폰 목록
     @GetMapping("/available/{userNo}")
     public ResponseEntity<?> getAvailableCoupons(@PathVariable("userNo") Long userNo) {

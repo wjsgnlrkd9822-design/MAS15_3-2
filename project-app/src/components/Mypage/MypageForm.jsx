@@ -144,12 +144,19 @@ const UserSection = () => {
 // ============================
 // NEW: 등급 & 쿠폰 섹션
 // ============================
-const gradeInfo = {
+const gradeInfo = {   // ← 이거 추가!
   NEW_USER: { label: '신규회원', color: '#6b7280', bg: '#f3f4f6', emoji: '🌱' },
   BRONZE: { label: 'BRONZE', color: '#92400e', bg: '#fef3c7', emoji: '🥉' },
   SILVER: { label: 'SILVER', color: '#475569', bg: '#f1f5f9', emoji: '🥈' },
   GOLD: { label: 'GOLD', color: '#b45309', bg: '#fffbeb', emoji: '🥇' },
   VIP: { label: 'VIP', color: '#7c3aed', bg: '#f5f3ff', emoji: '👑' },
+}
+const gradeNextInfo = {
+  NEW_USER: '첫 결제 후 등급이 부여됩니다',
+  BRONZE: '누적 30만원 달성 시 SILVER 승급',
+  SILVER: '누적 70만원 달성 시 GOLD 승급',
+  GOLD: '누적 150만원 달성 시 VIP 승급',
+  VIP: '최고 등급입니다! 🎉',
 }
 
 const GradeCouponSection = () => {
@@ -158,30 +165,25 @@ const GradeCouponSection = () => {
   const [tab, setTab] = useState('available') // 'available' | 'all'
   const userNo = getUserNoFromToken()
 
-  useEffect(() => {
+  const availableCoupons = coupons.filter(c => !c.used)
+  const displayCoupons = tab === 'available' ? availableCoupons : coupons
+  const gradeStyle = grade ? (gradeInfo[grade.grade] || gradeInfo['BRONZE']) : null
+useEffect(() => {
     if (!userNo) return
-    // 등급 조회
-    axios.get(`/api/coupon/grade/${userNo}`, { headers: getAuthHeader() })
-      .then(res => setGrade(res.data))
-      .catch(() => { })
+
+    // 등급 재계산 후 조회
+    axios.post(`/api/coupon/grade/recalc/${userNo}`, {}, { headers: getAuthHeader() })
+      .finally(() => {
+        axios.get(`/api/coupon/grade/${userNo}`, { headers: getAuthHeader() })
+          .then(res => setGrade(res.data))
+          .catch(() => { })
+      })
+
     // 쿠폰 조회
     axios.get(`/api/coupon/all/${userNo}`, { headers: getAuthHeader() })
       .then(res => setCoupons(res.data))
       .catch(() => { })
-  }, [userNo])
-
-  const availableCoupons = coupons.filter(c => !c.used)
-  const displayCoupons = tab === 'available' ? availableCoupons : coupons
-
-  const gradeStyle = grade ? (gradeInfo[grade.grade] || gradeInfo['BRONZE']) : null
-
-  const gradeNextInfo = {
-    NEW_USER: '첫 결제 후 등급이 부여됩니다',
-    BRONZE: '누적 30만원 달성 시 SILVER 승급',
-    SILVER: '누적 70만원 달성 시 GOLD 승급',
-    GOLD: '누적 150만원 달성 시 VIP 승급',
-    VIP: '최고 등급입니다! 🎉',
-  }
+}, [userNo])
 
   return (
     <section style={{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>

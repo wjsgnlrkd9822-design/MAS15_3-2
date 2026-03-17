@@ -82,6 +82,13 @@
         VALUES (#{no}, #{grade}, #{totalSales})
     </insert>
 
+    <!-- 결제완료 예약 합산 -->
+    <select id="selectUserTotalSales" resultType="long">
+        SELECT COALESCE(SUM(total_price), 0)
+        FROM reservations
+        WHERE user_no = #{userNo} AND status = '결제완료'
+    </select>
+
     <!-- 회원 등급 업데이트 -->
     <update id="updateUserGrade">
         UPDATE user_grade SET grade = #{grade}, total_sales = #{totalSales}

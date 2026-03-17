@@ -7,6 +7,8 @@ import com.aloha.project.dto.UserGrade;
 
 public interface CouponService {
 
+
+
     // 미사용 쿠폰 목록
     List<Coupon> getAvailableCoupons(Long userNo);
 
@@ -21,6 +23,8 @@ public interface CouponService {
 
     // 전체 회원 월정 쿠폰 발급 (스케줄러)
     void issueMonthlyToAll();
+
+    void updateGradeByReservation(Long userNo);
 
     // 쿠폰 사용
     boolean useCoupon(Long couponNo, Long reservationNo);
