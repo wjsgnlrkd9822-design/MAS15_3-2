@@ -1,23 +1,16 @@
 package com.aloha.project.handler;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import com.aloha.project.config.JwtTokenProvider;
-import com.aloha.project.dto.CustomUser;
-import com.aloha.project.dto.User;
-import com.aloha.project.dto.UserSocial;
-import com.aloha.project.service.UserSocialService;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -26,59 +19,32 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final UserSocialService userSocialService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 생성자 주입
-    public OAuth2LoginSuccessHandler(UserSocialService userSocialService, JwtTokenProvider jwtTokenProvider) {
-        this.userSocialService = userSocialService;
+    public OAuth2LoginSuccessHandler(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, 
+    public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
 
         log.info("========== OAuth2 로그인 성공 ==========");
 
-        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-    String provider = oauthToken.getAuthorizedClientRegistrationId(); // "kakao" 또는 "google"
+        DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
 
-    OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-    String socialId;
-    if ("google".equals(provider)) {
-        socialId = oAuth2User.getAttribute("sub").toString();
-    } else {
-        socialId = oAuth2User.getAttribute("id").toString();
-    }
+        Long userNo = Long.valueOf(oauthUser.getAttribute("userNo").toString());
+        String username = oauthUser.getAttribute("username");
 
-        User user;
+        log.info("OAuth2 userNo: {}, username: {}", userNo, username);
 
-        try {
-            UserSocial social = new UserSocial();
-            social.setProvider(provider);
-            social.setSocialId(socialId);
+        List<String> roles = Collections.singletonList("ROLE_USER");
 
-            user = userSocialService.selectBySocial(social);
+        String token = jwtTokenProvider.createToken(userNo, username, roles);
 
-        } catch (Exception e) {
-            log.error("소셜 사용자 조회 실패", e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
+        log.info("JWT 생성 완료: {}", token);
 
-        // CustomUser로 감싸기
-        CustomUser customUser = new CustomUser(user);
-
-        List<String> roles = customUser.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        String token = jwtTokenProvider.createToken(user.getNo(), user.getUsername(), roles);
-
-       response.sendRedirect("http://localhost:5173/oauth2/callback?token=" + token);
-
+        response.sendRedirect("http://localhost:5173/oauth2/callback?token=" + token);
     }
 }
