@@ -137,22 +137,21 @@ const LoginForm = () => {
                 onError={(e) => { e.target.style.display = 'none' }}
               />
             </a>
-            <a href="http://localhost:8080/oauth2/authorization/google"
-               className='h-[42px] flex items-center justify-center mx-auto px-2 py-3 my-4  
-                bg-white rounded shadow hover:bg-gray-100 text-sm border-black '>
-                  <div classname='w-5 h-5 mr-5' />
-                  <span className='text-black-54 font-semibold' >
-                    구글 계정으로 로그인
-                  </span>
+            <a href="http://localhost:8080/oauth2/authorization/google">
+              <img
+                src="/img/web_light_sq_SI@4x.png"
+                alt="구글 로그인"
+                style={{ height: "45px", width: "auto"}}
+                onError={(e) => { e.target.style.display = 'none' }}
+              />
             </a>
-
-            <a href="http://localhost:8080/oauth2/authorization/naver"
-               className='h-[42px] flex items-center justify-center mx-auto px-2 py-3 my-4  
-                bg-white rounded shadow hover:bg-gray-100 text-sm border-black '>
-                  <div classname='w-5 h-5 mr-5' />
-                  <span className='text-black-54 font-semibold' >
-                    네이버 계정으로 로그인
-                  </span>
+            <a href="http://localhost:8080/oauth2/authorization/naver">
+                  <img
+                src="/img/NAVER_login_Light_KR_white_wide_H48.png"
+                alt="네이버 로그인"
+                style={{ height: "45px", width: "auto"}}
+                onError={(e) => { e.target.style.display = 'none' }}
+              />
             </a>
 
 
