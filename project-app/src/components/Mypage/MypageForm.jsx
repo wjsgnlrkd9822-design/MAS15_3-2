@@ -4,8 +4,15 @@ import { useEffect, useRef, useState } from 'react'
 axios.defaults.baseURL = 'http://localhost:8080'
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('token')
-  return token ? { Authorization: token } : {}
+  let token = localStorage.getItem('token')
+  if (!token) return {}
+
+  // 이미 Bearer 있으면 그대로, 없으면 붙이기
+  if (!token.startsWith('Bearer ')) {
+    token = `Bearer ${token}`
+  }
+
+  return { Authorization: token }
 }
 
 // JWT에서 userNo 파싱
@@ -144,12 +151,19 @@ const UserSection = () => {
 // ============================
 // NEW: 등급 & 쿠폰 섹션
 // ============================
-const gradeInfo = {
+const gradeInfo = {   // ← 이거 추가!
   NEW_USER: { label: '신규회원', color: '#6b7280', bg: '#f3f4f6', emoji: '🌱' },
   BRONZE: { label: 'BRONZE', color: '#92400e', bg: '#fef3c7', emoji: '🥉' },
   SILVER: { label: 'SILVER', color: '#475569', bg: '#f1f5f9', emoji: '🥈' },
   GOLD: { label: 'GOLD', color: '#b45309', bg: '#fffbeb', emoji: '🥇' },
   VIP: { label: 'VIP', color: '#7c3aed', bg: '#f5f3ff', emoji: '👑' },
+}
+const gradeNextInfo = {
+  NEW_USER: '첫 결제 후 등급이 부여됩니다',
+  BRONZE: '누적 30만원 달성 시 SILVER 승급',
+  SILVER: '누적 70만원 달성 시 GOLD 승급',
+  GOLD: '누적 150만원 달성 시 VIP 승급',
+  VIP: '최고 등급입니다! 🎉',
 }
 
 const GradeCouponSection = () => {
@@ -158,30 +172,25 @@ const GradeCouponSection = () => {
   const [tab, setTab] = useState('available') // 'available' | 'all'
   const userNo = getUserNoFromToken()
 
-  useEffect(() => {
+  const availableCoupons = coupons.filter(c => !c.used)
+  const displayCoupons = tab === 'available' ? availableCoupons : coupons
+  const gradeStyle = grade ? (gradeInfo[grade.grade] || gradeInfo['BRONZE']) : null
+useEffect(() => {
     if (!userNo) return
-    // 등급 조회
-    axios.get(`/api/coupon/grade/${userNo}`, { headers: getAuthHeader() })
-      .then(res => setGrade(res.data))
-      .catch(() => { })
+
+    // 등급 재계산 후 조회
+    axios.post(`/api/coupon/grade/recalc/${userNo}`, {}, { headers: getAuthHeader() })
+      .finally(() => {
+        axios.get(`/api/coupon/grade/${userNo}`, { headers: getAuthHeader() })
+          .then(res => setGrade(res.data))
+          .catch(() => { })
+      })
+
     // 쿠폰 조회
     axios.get(`/api/coupon/all/${userNo}`, { headers: getAuthHeader() })
       .then(res => setCoupons(res.data))
       .catch(() => { })
-  }, [userNo])
-
-  const availableCoupons = coupons.filter(c => !c.used)
-  const displayCoupons = tab === 'available' ? availableCoupons : coupons
-
-  const gradeStyle = grade ? (gradeInfo[grade.grade] || gradeInfo['BRONZE']) : null
-
-  const gradeNextInfo = {
-    NEW_USER: '첫 결제 후 등급이 부여됩니다',
-    BRONZE: '누적 30만원 달성 시 SILVER 승급',
-    SILVER: '누적 70만원 달성 시 GOLD 승급',
-    GOLD: '누적 150만원 달성 시 VIP 승급',
-    VIP: '최고 등급입니다! 🎉',
-  }
+}, [userNo])
 
   return (
     <section style={{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>
@@ -421,7 +430,7 @@ const ViewModal = ({ resNo, onClose }) => {
     ]).then(([resData, resServices]) => {
       setDetail(resData.data); setServices(resServices.data)
       axios.get(`/api/rooms/${resData.data.roomNo}`, { headers: getAuthHeader() })
-           .then(r => setRoom(r.data.room))
+        .then(r => setRoom(r.data.room))
     })
   }, [resNo])
 
@@ -512,16 +521,36 @@ const EditReservationModal = ({ resNo, onClose, onRefresh }) => {
   const toggleService = (id) => { const sid = String(id); setSelectedSvcIds(prev => prev.includes(sid) ? prev.filter(s => s !== sid) : [...prev, sid]) }
 
   const handleUpdate = async () => {
-    const fd = new FormData()
-    fd.append('checkin', checkin); fd.append('checkout', checkout); fd.append('total', nights)
-    fd.append('totalPrice', total); fd.append('roomNo', detail.roomNo)
-    selectedSvcIds.forEach(id => fd.append('serviceIds', id))
-    try {
-      const res = await axios.post(`/api/reservation/update/${resNo}`, fd, { headers: getAuthHeader() })
-      alert(res.data.message)
-      if (res.data.success) { onClose(); onRefresh() }
-    } catch { alert('예약 수정 중 오류가 발생했습니다.') }
+  const data = {
+    checkin,
+    checkout,
+    total: nights,
+    totalPrice: total,
+    roomNo: detail.roomNo,
+    serviceIds: selectedSvcIds
   }
+
+  try {
+    const res = await axios.post(
+      `/api/reservation/update/${resNo}`,
+      data,
+      {
+        headers: { 
+          ...getAuthHeader(),
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    alert(res.data.message)
+    if (res.data.success) {
+      onClose()
+      onRefresh()
+    }
+  } catch (e) {
+    console.error(e)
+    alert('예약 수정 중 오류 발생')
+  }
+}
 
   const handleDelete = async () => {
     if (!window.confirm('정말 이 예약을 삭제하시겠습니까?')) return
@@ -575,7 +604,7 @@ const EditReservationModal = ({ resNo, onClose, onRefresh }) => {
 // ============================
 // 6. 예약 섹션
 // ============================
-const ReservationSection = ( { refreshKey }) => {
+const ReservationSection = ({ refreshKey }) => {
   useEffect(() => { loadReservations() }, [refreshKey])
   const [reservations, setReservations] = useState([])
   const [viewResNo, setViewResNo] = useState(null)
@@ -672,7 +701,7 @@ const ReservationSection = ( { refreshKey }) => {
 // ============================
 const MypageForm = () => {
   const [refreshKey, setRefreshKey] = useState(0)
-  const refresh = () => setRefreshKey( k => k + 1)
+  const refresh = () => setRefreshKey(k => k + 1)
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) { alert('로그인이 필요합니다.'); window.location.href = '/login' }

@@ -1,22 +1,16 @@
 package com.aloha.project.handler;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import com.aloha.project.config.JwtTokenProvider;
-import com.aloha.project.dto.CustomUser;
-import com.aloha.project.dto.User;
-import com.aloha.project.dto.UserSocial;
-import com.aloha.project.service.UserSocialService;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,57 +19,32 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final UserSocialService userSocialService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 생성자 주입
-    public OAuth2LoginSuccessHandler(UserSocialService userSocialService, JwtTokenProvider jwtTokenProvider) {
-        this.userSocialService = userSocialService;
+    public OAuth2LoginSuccessHandler(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, 
+    public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
 
         log.info("========== OAuth2 로그인 성공 ==========");
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String socialId = oAuth2User.getAttribute("id").toString();
-        String provider = "kakao";
+        DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
 
-        User user;
+        Long userNo = Long.valueOf(oauthUser.getAttribute("userNo").toString());
+        String username = oauthUser.getAttribute("username");
 
-        try {
-            UserSocial social = new UserSocial();
-            social.setProvider(provider);
-            social.setSocialId(socialId);
+        log.info("OAuth2 userNo: {}, username: {}", userNo, username);
 
-            user = userSocialService.selectBySocial(social);
+        List<String> roles = Collections.singletonList("ROLE_USER");
 
-        } catch (Exception e) {
-            log.error("소셜 사용자 조회 실패", e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
+        String token = jwtTokenProvider.createToken(userNo, username, roles);
 
-        // CustomUser로 감싸기
-        CustomUser customUser = new CustomUser(user);
+        log.info("JWT 생성 완료: {}", token);
 
-        List<String> roles = customUser.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        String token = jwtTokenProvider.createToken(user.getNo(), user.getUsername(), roles);
-
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(
-            "{\"token\": \"" + token + "\", \"username\": \"" + user.getUsername() + "\"}"
-        );
-
+        response.sendRedirect("http://localhost:5173/oauth2/callback?token=" + token);
     }
 }

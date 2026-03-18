@@ -159,6 +159,7 @@ const UserManage = () => {
 
           <div style={{ ...common.card, padding: '12px 20px', marginBottom: '8px' }}>
             <div style={styles.headerRow}>
+              <div style={styles.col}>아이디</div> 
               <div style={styles.col}>이름</div>
               <div style={styles.col}>이메일</div>
               <div style={styles.col}>전화번호</div>
@@ -179,6 +180,7 @@ const UserManage = () => {
                   ...styles.row,
                   borderBottom: idx < userList.length - 1 ? '1px solid #f0f0f0' : 'none'
                 }}>
+                  <div style={styles.col}>{user.username}</div>
                   <div style={styles.col}>{user.name}</div>
                   <div style={styles.col}>{user.email}</div>
                   <div style={styles.col}>{user.phone}</div>

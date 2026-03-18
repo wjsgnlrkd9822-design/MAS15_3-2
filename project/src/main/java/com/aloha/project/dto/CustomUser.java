@@ -21,17 +21,17 @@ public class CustomUser implements UserDetails {
         this.user = user;
     }
 
-   @Override
-public Collection<? extends GrantedAuthority> getAuthorities() {
-    if (user.getAuthList() == null || user.getAuthList().isEmpty()) {
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (user.getAuthList() == null || user.getAuthList().isEmpty()) {
 
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+
+        return user.getAuthList().stream()
+                .map(auth -> new SimpleGrantedAuthority(auth.getAuth()))
+                .collect(Collectors.toList());
     }
-
-    return user.getAuthList().stream()
-               .map(auth -> new SimpleGrantedAuthority(auth.getAuth()))
-               .collect(Collectors.toList());
-}
 
     @Override
     public String getPassword() {
@@ -62,10 +62,9 @@ public Collection<? extends GrantedAuthority> getAuthorities() {
     public boolean isEnabled() {
         return user.getEnabled() == 0 ? false : true;
     }
-    
 
     public Long getNo() {
         return user.getNo();
     }
-    
+
 }

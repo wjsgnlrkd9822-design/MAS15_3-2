@@ -14,7 +14,8 @@ export default defineConfig({
       // '/img': 'http://localhost:8080',
       '/noticeup/': 'http://localhost:8080',
       '/noticedelete': 'http://localhost:8080',  
-      // '/pet': 'http://localhost:8080',
+      '/pet/reservation/insert': 'http://localhost:8080',  
+      '/pet/introduce': 'http://localhost:8080',
     }
   }
 })

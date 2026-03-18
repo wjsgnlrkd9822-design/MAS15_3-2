@@ -1,16 +1,21 @@
-import axios from 'axios'
+import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080'
-})
+  baseURL: "http://localhost:8080",
+});
 
-// 요청할 때마다 토큰 자동으로 헤더에 추가
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`
-    }
-    return config
-})
+  const token = localStorage.getItem("token");
 
-export default api
+  console.log("🔥 토큰 확인:", token);
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  console.log("🔥 헤더:", config.headers);
+
+  return config;
+});
+
+export default api;
