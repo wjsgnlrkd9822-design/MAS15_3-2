@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from '@tailwindcss/vite'  // ← 이거 추가
+
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -14,6 +15,7 @@ export default defineConfig({
       // '/img': 'http://localhost:8080',
       '/noticeup/': 'http://localhost:8080',
       '/noticedelete': 'http://localhost:8080',  
+      // '/pet': 'http://localhost:8080',
       '/pet/reservation/insert': 'http://localhost:8080',  
       '/pet/introduce': 'http://localhost:8080',
     }

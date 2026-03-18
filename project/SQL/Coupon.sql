@@ -1,4 +1,4 @@
--- Active: 1767920835424@@127.0.0.1@3306@aloha
+-- Active: 1772523695263@@127.0.0.1@3306@aloha
 -- ============================== 회원 등급 테이블 ==============================
 CREATE TABLE IF NOT EXISTS user_grade (
     no          BIGINT          NOT NULL COMMENT '회원번호 (users.no FK)',
