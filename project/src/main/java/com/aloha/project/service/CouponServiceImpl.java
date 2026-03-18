@@ -30,6 +30,15 @@ public class CouponServiceImpl implements CouponService {
         return couponMapper.selectAllCoupons(userNo);
     }
 
+
+    @Override
+    @Transactional
+    public void updateGradeByReservation(Long userNo) {
+        long totalSales = couponMapper.selectUserTotalSales(userNo);
+        updateUserGrade(userNo, totalSales);
+        log.info("등급 재계산 - userNo: {}, totalSales: {}", userNo, totalSales);
+    }
+
     @Override
     @Transactional
     public boolean issueNewUserCoupon(Long userNo) {

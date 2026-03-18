@@ -3,26 +3,38 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aloha.project.mapper.CouponMapper">
-
+<resultMap id="couponResultMap" type="Coupon">
+    <result column="is_used" property="used"/>
+    <result column="coupon_no" property="couponNo"/>
+    <result column="user_no" property="userNo"/>
+    <result column="coupon_type" property="couponType"/>
+    <result column="discount_amount" property="discountAmount"/>
+    <result column="issued_at" property="issuedAt"/>
+    <result column="expired_at" property="expiredAt"/>
+    <result column="used_at" property="usedAt"/>
+    <result column="reservation_no" property="reservationNo"/>
+</resultMap>
     <!-- 쿠폰 발급 -->
     <insert id="insertCoupon" useGeneratedKeys="true" keyProperty="couponNo">
         INSERT INTO coupon (user_no, coupon_type, grade, discount_amount, is_used, issued_at, expired_at)
         VALUES (#{userNo}, #{couponType}, #{grade}, #{discountAmount}, 0, NOW(), #{expiredAt})
     </insert>
 
-    <!-- 미사용 쿠폰 목록 -->
-    <select id="selectAvailableCoupons" resultType="Coupon">
-        SELECT * FROM coupon
-        WHERE user_no = #{userNo} AND is_used = 0 AND expired_at > NOW()
-        ORDER BY issued_at DESC
-    </select>
+<select id="selectAvailableCoupons" resultMap="couponResultMap">
+    SELECT * FROM coupon
+    WHERE user_no = #{userNo} AND is_used = 0 AND expired_at > NOW()
+    ORDER BY issued_at DESC
+</select>
 
-    <!-- 전체 쿠폰 목록 -->
-    <select id="selectAllCoupons" resultType="Coupon">
-        SELECT * FROM coupon
-        WHERE user_no = #{userNo}
-        ORDER BY issued_at DESC
-    </select>
+<select id="selectAllCoupons" resultMap="couponResultMap">
+    SELECT * FROM coupon
+    WHERE user_no = #{userNo}
+    ORDER BY issued_at DESC
+</select>
+
+<select id="selectCoupon" resultMap="couponResultMap">
+    SELECT * FROM coupon WHERE coupon_no = #{couponNo}
+</select>
 
     <!-- 쿠폰 사용 처리 -->
     <update id="useCoupon">
@@ -31,10 +43,6 @@
         WHERE coupon_no = #{couponNo} AND is_used = 0
     </update>
 
-    <!-- 쿠폰 단건 조회 -->
-    <select id="selectCoupon" resultType="Coupon">
-        SELECT * FROM coupon WHERE coupon_no = #{couponNo}
-    </select>
 
     <!-- 쿠폰 삭제 -->
     <delete id="deleteCoupon">
@@ -73,6 +81,13 @@
         INSERT INTO user_grade (no, grade, total_sales)
         VALUES (#{no}, #{grade}, #{totalSales})
     </insert>
+
+    <!-- 결제완료 예약 합산 -->
+    <select id="selectUserTotalSales" resultType="long">
+        SELECT COALESCE(SUM(total_price), 0)
+        FROM reservations
+        WHERE user_no = #{userNo} AND status = '결제완료'
+    </select>
 
     <!-- 회원 등급 업데이트 -->
     <update id="updateUserGrade">

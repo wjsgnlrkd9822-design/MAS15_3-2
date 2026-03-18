@@ -8,17 +8,9 @@ import java.util.Map;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import com.aloha.project.dto.CustomUser;
-import com.aloha.project.dto.Pet;
-import com.aloha.project.dto.ReservationDto;
-import com.aloha.project.dto.User;
+import com.aloha.project.dto.*;
 import com.aloha.project.service.PetService;
 import com.aloha.project.service.ReservationService;
 
@@ -30,100 +22,158 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MyPageController {
 
+    private final PetService petService;
+    private final ReservationService reservationService;
 
-    private final PetService petService;     
-    private final ReservationService reservationService;  
+    /**
+     * 공통: 사용자 번호 추출 (핵심)
+     */
+    private Long getUserNo(Object principal) {
+        if (principal instanceof CustomUser user) {
+            return user.getNo();
+        } else if (principal instanceof CustomOAuth2User oauthUser) {
+            return oauthUser.getNo();
+        }
+        return null;
+    }
 
-
-    // 로그인한 사용자 정보 반환 (비동기식 JSON)
+    /**
+     * 로그인 사용자 정보
+     */
     @GetMapping("/api/users/me")
     @ResponseBody
-    public User getCurrentUser(@AuthenticationPrincipal CustomUser customUser) {
-        if (customUser != null) {
-            log.info("로그인 사용자: " + customUser.getUsername());
-            return customUser.getUser(); 
-        } else {
-            log.info("로그인 사용자 없음");
+    public User getCurrentUser(@AuthenticationPrincipal Object principal) {
+
+        if (principal == null)
             return null;
+
+        if (principal instanceof CustomUser user) {
+            return user.getUser();
+        } else if (principal instanceof CustomOAuth2User oauthUser) {
+            return oauthUser.getUser();
         }
+
+        return null;
     }
 
     /**
      * 마이페이지
      */
     @GetMapping("/mypage")
-    public String mypage(Model model, @AuthenticationPrincipal CustomUser customUser) throws Exception {
-        if(customUser != null){
-            Long ownerNo = customUser.getNo();
+    public String mypage(Model model, @AuthenticationPrincipal Object principal) {
 
-            // 반려견 목록
-            List<Pet> pets = petService.selectPetsByOwnerNo(ownerNo);
-            model.addAttribute("pets", pets);
-
-            // 예약 목록
-            List<ReservationDto> reservations = reservationService.getReservationsByUser(ownerNo);
-            model.addAttribute("reservations", reservations);
+        if (principal == null) {
+            return "redirect:/login";
         }
+
+        Long userNo = getUserNo(principal);
+
+        if (userNo != null) {
+            try {
+                List<Pet> pets = petService.selectPetsByOwnerNo(userNo);
+                model.addAttribute("pets", pets);
+
+                List<ReservationDto> reservations = reservationService.getReservationsByUser(userNo);
+                model.addAttribute("reservations", reservations);
+
+            } catch (Exception e) {
+                log.error("마이페이지 데이터 조회 실패", e);
+                model.addAttribute("pets", List.of());
+                model.addAttribute("reservations", List.of());
+            }
+        }
+
         return "mypage/mypage";
     }
 
-    /* 내 예약 리스트 */
+    /**
+     * 내 예약 리스트
+     */
     @GetMapping("/api/reservations/my")
-@ResponseBody
-public Map<String, Object> getMyReservations(@AuthenticationPrincipal CustomUser customUser) {
-    Map<String, Object> result = new HashMap<>();
-    try {
-        Long userNo = customUser.getNo();
-        List<ReservationDto> reservations = reservationService.getReservationsByUser(userNo);
-        result.put("success", true);
-        result.put("reservations", reservations);
-    } catch (Exception e) {
-        result.put("success", false);
-        result.put("message", e.getMessage());
+    @ResponseBody
+    public Map<String, Object> getMyReservations(@AuthenticationPrincipal Object principal) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (principal == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        try {
+            Long userNo = getUserNo(principal);
+
+            List<ReservationDto> reservations = reservationService.getReservationsByUser(userNo);
+
+            result.put("success", true);
+            result.put("reservations", reservations);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
+
+        return result;
     }
-    return result;
-}
 
     /**
-     * 예약 1건 조회 (AJAX)
+     * 예약 1건 조회 (본인만)
      */
     @GetMapping("/api/reservation/{resNo}")
     @ResponseBody
-    public ReservationDto getReservation(@PathVariable("resNo") Long resNo) {
-        return reservationService.getReservationByResNo(resNo);
+    public ReservationDto getReservation(
+            @PathVariable("resNo") Long resNo,
+            @AuthenticationPrincipal Object principal) {
+
+        if (principal == null)
+            return null;
+
+        Long userNo = getUserNo(principal);
+
+        ReservationDto dto = reservationService.getReservationByResNo(resNo);
+
+        // 본인 예약인지 체크
+        if (dto == null || !dto.getUserNo().equals(userNo)) {
+            return null; // 또는 403 처리
+        }
+
+        return dto;
     }
 
     /**
-     * 예약 수정 (AJAX)
+     * 예약 수정 (본인만)
      */
     @PostMapping("/api/reservation/update/{resNo}")
     @ResponseBody
     public Map<String, Object> updateReservation(
             @PathVariable("resNo") Long resNo,
-            @RequestParam("checkin") String checkin,
-            @RequestParam("checkout") String checkout,
-            @RequestParam("total") int total,
-            @RequestParam("totalPrice") int totalPrice,
-            @RequestParam(value="serviceIds", required=false) List<Long> serviceIds,
-            @RequestParam("roomNo") Long roomNo   // ⭐ 방 번호 필요 (겹침 체크용)
-    ) {
+            @RequestBody ReservationDto dto,
+            @AuthenticationPrincipal Object principal) {
+
         Map<String, Object> result = new HashMap<>();
 
+        if (principal == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
         try {
-            LocalDate checkinDate = LocalDate.parse(checkin);
-            LocalDate checkoutDate = LocalDate.parse(checkout);
+            Long userNo = getUserNo(principal);
 
-            // ⭐ DTO로 묶어서 전달
-            ReservationDto dto = new ReservationDto();
+            ReservationDto origin = reservationService.getReservationByResNo(resNo);
+
+            // 🔥 본인 예약 검증
+            if (origin == null || !origin.getUserNo().equals(userNo)) {
+                result.put("success", false);
+                result.put("message", "권한이 없습니다.");
+                return result;
+            }
+
+            // 🔥 핵심: resNo 세팅 (프론트에서 안 보낼 수도 있음)
             dto.setResNo(resNo);
-            dto.setRoomNo(roomNo);
-            dto.setCheckin(checkinDate);
-            dto.setCheckout(checkoutDate);
-            dto.setTotal(total);
-            dto.setTotalPrice(totalPrice);
-            dto.setServiceIds(serviceIds);
 
-            // ⭐ 겹침 체크 포함 수정 호출
             boolean success = reservationService.updateReservation(dto);
 
             if (!success) {
@@ -136,6 +186,7 @@ public Map<String, Object> getMyReservations(@AuthenticationPrincipal CustomUser
             result.put("message", "예약이 수정되었습니다.");
 
         } catch (Exception e) {
+            e.printStackTrace(); // 🔥 로그 꼭 찍어
             result.put("success", false);
             result.put("message", "수정 실패: " + e.getMessage());
         }
@@ -144,46 +195,84 @@ public Map<String, Object> getMyReservations(@AuthenticationPrincipal CustomUser
     }
 
     /**
-     * 예약 취소
+     * 예약 취소 (본인만)
      */
     @PostMapping("/api/reservation/cancel/{resNo}")
     @ResponseBody
-    public Map<String, Object> cancelReservation(@PathVariable("resNo") Long resNo) {
+    public Map<String, Object> cancelReservation(
+            @PathVariable("resNo") Long resNo,
+            @AuthenticationPrincipal Object principal) {
+
         Map<String, Object> result = new HashMap<>();
+
+        if (principal == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
         try {
-            boolean success = reservationService.cancelReservation(resNo);
-            if (success) {
-                result.put("success", true);
-                result.put("message", "예약이 취소되었습니다.");
-            } else {
+            Long userNo = getUserNo(principal);
+
+            ReservationDto dto = reservationService.getReservationByResNo(resNo);
+
+            if (dto == null || !dto.getUserNo().equals(userNo)) {
                 result.put("success", false);
-                result.put("message", "이미 취소되었거나 존재하지 않는 예약입니다.");
+                result.put("message", "권한이 없습니다.");
+                return result;
             }
+
+            boolean success = reservationService.cancelReservation(resNo);
+
+            result.put("success", success);
+            result.put("message", success ? "예약이 취소되었습니다." : "취소 실패");
+
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "취소 실패: " + e.getMessage());
         }
+
         return result;
     }
 
     /**
-     * 예약 삭제 (AJAX)
+     * 예약 삭제 (본인만)
      */
     @DeleteMapping("/api/reservation/delete/{resNo}")
     @ResponseBody
-    public Map<String, Object> deleteReservation(@PathVariable("resNo") Long resNo) {
+    public Map<String, Object> deleteReservation(
+            @PathVariable("resNo") Long resNo,
+            @AuthenticationPrincipal Object principal) {
+
         Map<String, Object> result = new HashMap<>();
+
+        if (principal == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
         try {
+            Long userNo = getUserNo(principal);
+
+            ReservationDto dto = reservationService.getReservationByResNo(resNo);
+
+            if (dto == null || !dto.getUserNo().equals(userNo)) {
+                result.put("success", false);
+                result.put("message", "권한이 없습니다.");
+                return result;
+            }
+
             reservationService.delete(resNo);
+
             result.put("success", true);
             result.put("message", "예약이 삭제되었습니다.");
+
         } catch (Exception e) {
-            e.printStackTrace();
             result.put("success", false);
             result.put("message", "삭제 실패: " + e.getMessage());
         }
+
         return result;
     }
-
-
 }
