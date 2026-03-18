@@ -98,7 +98,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("http://localhost:5173"); // React 개발서버 허용
+        configuration.addAllowedOriginPattern("http://localhost:5173"); // React 개발서 버 허용
+        configuration.addAllowedOriginPattern("http://localhost:5174"); // ← 이 줄 추가
         configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키/인증 허용
