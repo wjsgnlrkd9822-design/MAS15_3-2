@@ -1,0 +1,2 @@
+# Ensure properties files are stored and checked out as UTF-8 in all environments
+*.properties text working-tree-encoding=UTF-8

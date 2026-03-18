@@ -24,13 +24,15 @@ export async function insertReservation(roomNo, body) {
     body.serviceIds.split(',').filter(Boolean).forEach(id => params.append('serviceIds', id));
   }
 
-  const res = await fetch(`/pet/reservation/insert/${roomNo}`, {
+  // ✅ redirect: 'manual' - 리다이렉트를 따라가지 않음
+  await fetch(`/pet/reservation/insert/${roomNo}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': `Bearer ${token}`
     },
     body: params.toString(),
+    redirect: 'manual' // ✅ 추가
   });
 
   // 리다이렉트 응답도 성공으로 처리
