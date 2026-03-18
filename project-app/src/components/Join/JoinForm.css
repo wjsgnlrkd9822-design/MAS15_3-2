@@ -119,3 +119,26 @@
     color: #0d6efd;
     
 }
+.check-id-button {
+  height: 51px;
+  padding: 0 16px;
+  border: 1px solid #d1d5db;
+  color:#374151;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.check-id-button.available {
+  background: #22c55e;
+  color: #fff;
+  border-color: #22c55e;
+}
+
+.check-id-button:not(.available):hover {
+  background: #374151;
+  border-color: #9ca3af;
+  color: #ffffff;
+}

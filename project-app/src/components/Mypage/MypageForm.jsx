@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
+import './MypageForm.css'
 
 axios.defaults.baseURL = 'http://localhost:8080'
 
@@ -101,10 +102,15 @@ const UserSection = () => {
           ))}
         </ul>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => { setForm({ ...info }); setEditOpen(true) }} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>정보 수정</button>
-          <button onClick={handleDelete} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #fca5a5', background: '#fff', color: '#ef4444', cursor: 'pointer', fontSize: '14px' }}>회원 탈퇴</button>
+          <button onClick={() => { setForm({ ...info }); setEditOpen(true) }}
+            className='back-button'>정보 수정</button>
+
+          <button onClick={handleDelete}
+            className='delete-button'>회원 탈퇴</button>
         </div>
       </div>
+
+
       {editOpen && (
         <div onClick={() => setEditOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '480px', boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}>
@@ -130,7 +136,8 @@ const UserSection = () => {
               <label style={{ fontWeight: 500, fontSize: '14px', display: 'block', marginBottom: '4px' }}>주소</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input value={form.address || ''} readOnly style={{ flex: 1, padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', background: '#f9fafb', color: '#9ca3af' }} />
-                <button onClick={searchAddress} style={{ padding: '8px 14px', border: '1px solid #d1d5db', borderRadius: '8px', background: '#fff', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap' }}>주소 검색</button>
+                <button onClick={searchAddress}
+                  className='back-button'>주소 검색</button>
               </div>
             </div>
             <div style={{ marginBottom: '12px' }}>
@@ -138,8 +145,10 @@ const UserSection = () => {
               <input value={form.detailAddress || ''} onChange={e => setForm(f => ({ ...f, detailAddress: e.target.value }))} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #e5e7eb', paddingTop: '12px' }}>
-              <button onClick={() => setEditOpen(false)} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#e5e7eb', cursor: 'pointer', fontSize: '14px' }}>취소</button>
-              <button onClick={handleUpdate} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: '#fff', cursor: 'pointer', fontSize: '14px' }}>수정</button>
+              <button onClick={() => setEditOpen(false)}
+                className='back-button'>취소</button>
+              <button onClick={handleUpdate}
+                className='update-button'>수정</button>
             </div>
           </div>
         </div>
@@ -299,7 +308,11 @@ const PetModal = ({ title, form, setForm, onSubmit, onClose, onDelete, submitLab
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <div onClick={() => fileRef.current?.click()} style={{ width: '150px', height: '150px', border: '2px dashed #a0aec0', borderRadius: '12px', overflow: 'hidden', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+            <div onClick={() => fileRef.current?.click()}
+                 className="w-[150px] h-[150px] border-2 border-dashed border-gray-400
+                    rounded-xl overflow-hidden cursor-pointer flex items-center 
+                    justify-center bg-gray-50
+                    hover:bg-gray-50 hover:border-gray-700 hover:text-gray-700">
               {preview ? <img src={preview} alt="미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '12px', color: '#a0aec0', textAlign: 'center' }}>클릭하여<br />이미지 선택</span>}
             </div>
             <input ref={fileRef} type="file" accept="image/*" name="profileImg" style={{ display: 'none' }} onChange={handleImage} />
@@ -319,9 +332,12 @@ const PetModal = ({ title, form, setForm, onSubmit, onClose, onDelete, submitLab
         <div style={{ marginBottom: '12px' }}><label style={labelStyle}>건강 증명서</label><input type="file" name="certificateFile" style={{ width: '100%', fontSize: '14px' }} /></div>
         <div style={{ marginBottom: '16px' }}><label style={labelStyle}>기타 사항</label><textarea value={form.etc} onChange={e => setForm(f => ({ ...f, etc: e.target.value }))} rows={2} style={{ ...inputStyle, resize: 'none' }} /></div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #e5e7eb', paddingTop: '12px' }}>
-          {onDelete && <button onClick={onDelete} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #fca5a5', background: '#fff', color: '#ef4444', cursor: 'pointer', fontSize: '14px' }}>삭제</button>}
-          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#e5e7eb', cursor: 'pointer', fontSize: '14px' }}>취소</button>
-          <button onClick={onSubmit} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: '#fff', cursor: 'pointer', fontSize: '14px' }}>{submitLabel}</button>
+          {onDelete && <button onClick={onDelete}
+            className='delete-button'>삭제</button>}
+          <button onClick={onClose}
+            className='back-button'>취소</button>
+          <button onClick={onSubmit}
+            className='update-button'>{submitLabel}</button>
         </div>
       </div>
     </div>
@@ -375,7 +391,7 @@ const PetSection = () => {
 
   const handleEdit = async () => {
     const fd = buildFormData(); fd.append('petNo', editPetNo)
-    try { await axios.post('/api/pets/update', fd, { headers: getAuthHeader() }); alert('반려견 정보가 수정되었습니다.'); setEditOpen(false); loadPets() /* onPetUpdate() */ }
+    try { await axios.post('/api/pets/update', fd, { headers: getAuthHeader() }); alert('반려견 정보가 수정되었습니다.'); setEditOpen(false); loadPets() }
     catch { alert('반려견 수정 실패') }
   }
 
@@ -401,11 +417,17 @@ const PetSection = () => {
                 <span style={{ fontSize: '14px' }}>{pet.species} {pet.size}견 {pet.gender === '수컷' ? '♂' : '♀'}</span>
                 <span style={{ fontSize: '14px', color: '#6b7280' }}>{pet.age}살 · {pet.weight}kg</span>
               </div>
-              <button onClick={() => openEdit(pet.no)} style={{ marginLeft: 'auto', padding: '6px 14px', borderRadius: '8px', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>수정하기</button>
+              <button onClick={() => openEdit(pet.no)}
+                className='edit-button'>수정하기</button>
             </div>
           ))
         }
-        <button onClick={openAdd} style={{ width: '100%', padding: '20px', border: '2px dashed #6b7280', borderRadius: '16px', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '16px', fontWeight: 600, color: '#6b7280', opacity: 0.6, marginTop: '8px' }}>
+        <button onClick={openAdd}
+          className="w-full h-[80px] p-5 border-2 border-dashed border-gray-500
+            rounded-2xl bg-white cursor-pointer flex items-center justify-center  
+            gap-2 text-base font-semibold text-gray-500 opacity-60 mt-2
+            hover:opacity-100
+            hover:bg-gray-50 hover:border-gray-700 hover:text-gray-700">
           <span style={{ fontSize: '24px' }}>＋</span><span>반려견 추가</span>
         </button>
       </div>
@@ -521,36 +543,36 @@ const EditReservationModal = ({ resNo, onClose, onRefresh }) => {
   const toggleService = (id) => { const sid = String(id); setSelectedSvcIds(prev => prev.includes(sid) ? prev.filter(s => s !== sid) : [...prev, sid]) }
 
   const handleUpdate = async () => {
-  const data = {
-    checkin,
-    checkout,
-    total: nights,
-    totalPrice: total,
-    roomNo: detail.roomNo,
-    serviceIds: selectedSvcIds
-  }
-
-  try {
-    const res = await axios.post(
-      `/api/reservation/update/${resNo}`,
-      data,
-      {
-        headers: { 
-          ...getAuthHeader(),
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    alert(res.data.message)
-    if (res.data.success) {
-      onClose()
-      onRefresh()
+    const data = {
+      checkin,
+      checkout,
+      total: nights,
+      totalPrice: total,
+      roomNo: detail.roomNo,
+      serviceIds: selectedSvcIds
     }
-  } catch (e) {
-    console.error(e)
-    alert('예약 수정 중 오류 발생')
+
+    try {
+      const res = await axios.post(
+        `/api/reservation/update/${resNo}`,
+        data,
+        {
+          headers: {
+            ...getAuthHeader(),
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      alert(res.data.message)
+      if (res.data.success) {
+        onClose()
+        onRefresh()
+      }
+    } catch (e) {
+      console.error(e)
+      alert('예약 수정 중 오류 발생')
+    }
   }
-}
 
   const handleDelete = async () => {
     if (!window.confirm('정말 이 예약을 삭제하시겠습니까?')) return
@@ -592,9 +614,12 @@ const EditReservationModal = ({ resNo, onClose, onRefresh }) => {
         </div>
         <div style={{ marginBottom: '16px' }}><label style={labelStyle}>총 금액</label><input value={`${total.toLocaleString()}원`} readOnly style={{ ...inputStyle, background: '#f9fafb', fontWeight: 700 }} /></div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid #e5e7eb', paddingTop: '12px' }}>
-          <button onClick={handleDelete} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #fca5a5', background: '#fff', color: '#ef4444', cursor: 'pointer', fontSize: '14px' }}>삭제</button>
-          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#e5e7eb', cursor: 'pointer', fontSize: '14px' }}>취소</button>
-          <button onClick={handleUpdate} style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#3b82f6', color: '#fff', cursor: 'pointer', fontSize: '14px' }}>수정 완료</button>
+          <button onClick={handleDelete}
+                  className='delete-button'>삭제</button>
+          <button onClick={onClose} 
+                  className='back-button'>취소</button>
+          <button onClick={handleUpdate} 
+                  className='update-button'>수정 완료</button>
         </div>
       </div>
     </div>
@@ -676,11 +701,14 @@ const ReservationSection = ({ refreshKey }) => {
                         <span style={{ ...statusStyle(res.status), padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>{res.status}</span>
                       </td>
                       <td style={{ padding: '12px 16px' }} onClick={e => e.stopPropagation()}>
-                        {res.status === '예약중' && <button onClick={() => setEditResNo(res.resNo)} style={{ padding: '5px 12px', borderRadius: '6px', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontSize: '13px' }}>수정</button>}
+                        {res.status === '예약중' && <button onClick={() => setEditResNo(res.resNo)}
+                                                           className='edit-button'>수정</button>}
                       </td>
                       <td style={{ padding: '12px 16px' }} onClick={e => e.stopPropagation()}>
-                        {res.status === '예약중' && <button onClick={() => handlePay(res.resNo, res.totalPrice)} style={{ padding: '5px 12px', borderRadius: '6px', border: 'none', background: '#f59e0b', color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>결제</button>}
-                        {res.status === '결제완료' && <button onClick={() => handleRefund(res.resNo, res.totalPrice)} style={{ padding: '5px 12px', borderRadius: '6px', border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>환불</button>}
+                        {res.status === '예약중' && <button onClick={() => handlePay(res.resNo, res.totalPrice)} 
+                              className='buy-button'>결제</button>}
+                        {res.status === '결제완료' && <button onClick={() => handleRefund(res.resNo, res.totalPrice)} 
+                              style={{ padding: '5px 12px', borderRadius: '6px', border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>환불</button>}
                       </td>
                     </tr>
                   ))}

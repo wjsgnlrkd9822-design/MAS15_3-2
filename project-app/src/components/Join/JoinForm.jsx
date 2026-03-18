@@ -42,27 +42,37 @@ const JoinForm = () => {
   }
 
   const checkId = async () => {
+    const idPattern = /^[A-Za-z0-9]{6,20}$/;
+
     if (!form.username.trim()) {
-      alert('아이디를 입력해주세요')
-      return false
+      alert('아이디를 입력해주세요');
+      return false;
     }
+
+    if (!idPattern.test(form.username)) {
+      alert('아이디는 영문과 숫자만 가능하며 6~20자 이내로 작성해야합니다.');
+      return false;
+    }
+
     try {
-      const response = await fetch(`http://localhost:8080/api/users/check/${form.username}`)
-      const isAvailable = await response.json()
+      const response = await fetch(`http://localhost:8080/api/users/check/${form.username}`);
+      if (!response.ok) throw new Error('서버 오류 발생');
+
+      const isAvailable = await response.json();
       if (isAvailable) {
-        alert('사용 가능한 아이디입니다.')
-        setIdChecked(true)
-        return true
+        alert('사용 가능한 아이디입니다.');
+        setIdChecked(true);
+        return true;
       } else {
-        alert('중복된 아이디입니다.')
-        setIdChecked(false)
-        return false
+        alert('중복된 아이디입니다.');
+        setIdChecked(false);
+        return false;
       }
     } catch (err) {
-      alert('에러 내용: ' + err.message)
-      return false
+      alert('에러 내용: ' + err.message);
+      return false;
     }
-  }
+  };
 
   const searchAddress = () => {
     new window.daum.Postcode({
@@ -123,12 +133,7 @@ const JoinForm = () => {
             <button
               type="button"
               onClick={checkId}
-              style={{
-                padding: '0 16px', border: '1px solid #d1d5db', borderRadius: '8px',
-                background: idChecked ? '#22c55e' : '#fff',
-                color: idChecked ? '#fff' : '#374151',
-                fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap'
-              }}
+              className={`check-id-button ${idChecked ? 'available' : ''}`}
             >
               {idChecked ? '✓ 확인됨' : '중복확인'}
             </button>
@@ -173,11 +178,7 @@ const JoinForm = () => {
             <button
               type="button"
               onClick={searchAddress}
-              style={{
-                padding: '0 16px', border: '1px solid #d1d5db', borderRadius: '8px',
-                background: '#fff', color: '#374151',
-                fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap'
-              }}
+              className='check-id-button'
             >
               주소 검색
             </button>
@@ -224,7 +225,8 @@ const JoinForm = () => {
             <button
               type="button"
               onClick={submitForm}
-              className='w-full h-[42px] py-2.5 px-4 text-lg font-semibold text-white bg-gray-900 rounded-lg hover:bg-gray-800 cursor-pointer'
+              className='w-full h-[42px] py-2.5 px-4 text-lg font-semibold 
+              text-white bg-gray-900 rounded-lg hover:bg-gray-800 cursor-pointer'
             >
               회원가입
             </button>

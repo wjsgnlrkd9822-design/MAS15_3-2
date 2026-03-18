@@ -41,7 +41,7 @@ const LoginForm = () => {
         else localStorage.removeItem('savedUsername')
 
         if (autoLogin) localStorage.setItem('autoLogin', 'true')
-          else localStorage.removeItem('autoLogin')
+        else localStorage.removeItem('autoLogin')
 
         navigate('/')
       } else {
@@ -62,6 +62,10 @@ const LoginForm = () => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('logout')) setSuccess('정상적으로 로그아웃 되었습니다.')
   }, [])
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
 
   return (
     <section className="login-header">
@@ -122,36 +126,62 @@ const LoginForm = () => {
 
           <div className="grid gap-2 flex justify-center">
             <button type="submit"
-                    className='w-full h-[42px] py-2.5 px-4 text-lg font-semibold 
+              className='w-[400px]  h-[42px] py-2.5 px-4 text-lg font-semibold 
                     text-white bg-gray-900 rounded-lg hover:bg-gray-800 
                     rounded shadow cursor-pointer '
             >로그인</button>
 
             <hr style={{ margin: '4px 0' }} />
 
-            <a href="http://localhost:8080/oauth2/authorization/kakao">
+            <a href="http://localhost:8080/oauth2/authorization/kakao"
+              className="relative flex items-center 
+              h-[45px] w-full max-w-[400px] mx-auto my-2 bg-[#FEE500] 
+              rounded-lg shadow hover:bg-[#FDD835] cursor-pointer px-4"
+            >
               <img
-                src="/img/kakao_login_medium_wide.png"
-                alt="카카오 로그인"
-                style={{ height: "45px", width: "auto"}}
-                onError={(e) => { e.target.style.display = 'none' }}
+                src="/img/kakao-simbol.png"
+                alt="Kakao"
+                className="w-5 h-5 absolute left-4"
+                onError={(e) => { e.target.style.display = 'none'; }}
               />
+
+              <span className="flex-1 text-center text-gray-700 font-semibold text-base">
+                카카오톡 로그인
+              </span>
             </a>
-            <a href="http://localhost:8080/oauth2/authorization/google">
+
+            <a href="http://localhost:8080/oauth2/authorization/naver"
+              className="relative flex items-center 
+              h-[45px] w-full max-w-[400px] mx-auto my-2 bg-[#03A94D] 
+              rounded-lg shadow hover:bg-[#02B74E] cursor-pointer px-4"
+            >
               <img
-                src="/img/web_light_sq_SI@4x.png"
-                alt="구글 로그인"
-                style={{ height: "45px", width: "auto"}}
-                onError={(e) => { e.target.style.display = 'none' }}
+                src="/img/naver-simbol.png"
+                alt="Naver"
+                className="w-5 h-5 absolute left-4"
+                onError={(e) => { e.target.style.display = 'none'; }}
               />
+
+              <span className="flex-1 text-center text-white font-semibold text-base">
+                네이버 로그인
+              </span>
             </a>
-            <a href="http://localhost:8080/oauth2/authorization/naver">
-                  <img
-                src="/img/NAVER_login_Light_KR_white_wide_H48.png"
-                alt="네이버 로그인"
-                style={{ height: "45px", width: "auto"}}
-                onError={(e) => { e.target.style.display = 'none' }}
+            
+            <a href="http://localhost:8080/oauth2/authorization/google"
+              className="relative flex items-center 
+              h-[45px] w-full max-w-[400px] mx-auto my-2 bg-white 
+              rounded-lg shadow hover:bg-gray-100 cursor-pointer px-4"
+            >
+              <img
+                src="/img/google-icon.png"
+                alt="Google"
+                className="w-5 h-5 absolute left-4"
+                onError={(e) => { e.target.style.display = 'none'; }}
               />
+
+              <span className="flex-1 text-center text-gray-700 font-semibold text-base">
+                구글 로그인
+              </span>
             </a>
 
 
