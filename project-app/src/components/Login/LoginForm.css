@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 .login-header {
     display:flex;
     justify-content: center;
@@ -118,4 +120,8 @@
 .no-count {
     color: #6b7280;
     
+}
+
+.google-font {
+  font-family: 'Roboto', sans-serif;
 }

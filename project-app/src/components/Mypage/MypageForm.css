@@ -1,0 +1,120 @@
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+
+.back-button:not(.available):hover {
+  background: #374151;
+  border-color: #9ca3af;
+  color: #ffffff;
+}
+
+.update-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 40px;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+
+.update-button:not(.available):hover {
+  background: #fff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 40px;
+ border: 1px solid #fca5a5;
+  border-radius: 8px;
+  background: #fff;
+  color:#ef4444;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.delete-button:not(.available):hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.edit-button {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.edit-button:hover {
+  background: #374151;
+  border-color: #d1d5db;
+  color: #fff;
+}
+
+.buy-button {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  background: #f59e0b;
+  color:#fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.buy-button:hover {
+  background: #fff;
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.refund-button {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  background: #ef4444;
+  color:#fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.refund-button:hover {
+  background: #fff;
+  border-color: #ef4444;
+  color: #ef4444;
+}
